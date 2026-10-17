@@ -54,19 +54,16 @@ def get_and_process_provisional_schedule(path):
         df = pd.DataFrame(columns=COLUMNS)
         df['date'] = pd.to_datetime(df['date'])
 
-    #localize ISO date objects only
-    dates=df.loc[df['date']!='whole month', 'date']
-
     #set boolean to flag if the provisional dates are for the current month or not
-    current_month_exists = False
+    current_month_exists=False
     for date in dates:
         if date.year==today.year and date.month==today.month:
-            current_month_exists = True
+            current_month_exists=True
             break
 
     #If no dates match, empty the dataframe
     if not current_month_exists:
-        df==df.iloc[0:0].copy()
+        df=df.iloc[0:0].copy()
 
     return(df)
 
@@ -126,7 +123,7 @@ def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_S
                 rows.append([days, next_person(), 'speaker'])
 
     history = pd.DataFrame(rows, columns=['date', 'name', 'role'])
-    history.to_csv('{}/data/dummy/dummy_history.csv'.format(path), index=False)
+    history.to_csv('{}/data/dummy/dummy_history.csv'.format(path), index=False, date_format='%Y-%m-%d')
 
     print(history.head(12).to_string(index=False))
     print(f"\n{len(history)} rows written to data/dummy/dummy_history.csv")

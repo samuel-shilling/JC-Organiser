@@ -10,19 +10,6 @@ from src.config import *
 
 #get a list of current JC members 
 def get_current_JC_members(path):
-    """
-    must be a .csv which only consists of the folliwing:
-
-    name
-    Forename1 Surname1
-    Forename2 Surname2
-    Forename3 Surname3
-
-    etc...
-    
-    """
-    
-
     try:
         df=pd.read_csv(path)
     except:
@@ -34,32 +21,13 @@ def get_current_JC_members(path):
 
 #get the speaker histories in the last 12 months and write file if it doesn't exist (this is the core dataframe of this algorithm)
 def get_speaker_histories(path):
-    """
-    This is a history file that should already exist (but will be generated if not) in the form:
-
-    date,name,role
-    2025-10-02,Forename1 Surname1,chair
-    2025-10-02,Forename2 Surname2,co-chair
-    2025-10-02,Forename3 Surname3,speaker
-
-    etc...
-
-    note that dates MUST be ISO format (so write them as such in a texteditor - not excel)
-
-    """
-
-    #it should exist and be able to read in
-    #if it doesnt exist, make it
     try:
         df=pd.read_csv(path)
         df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
         df['name']=df['name'].str.strip()
-
     except FileNotFoundError:
         df=pd.DataFrame(columns=COLUMNS)
         df["date"]=pd.to_datetime(df["date"])
-
-
     return(df)
 
 
@@ -170,23 +138,22 @@ def optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_
     results['date']=pd.to_datetime(results['date'])
     results.to_csv("{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
 
-    
     return(results)
 
 # #swaps should be between two people in one month, or between 
-# def make_revisions_to_schedule(root_path,path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
+# def make_revisions_to_schedule(swappage,root_path,path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
 #     #get the provisional schedule
 #     provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
 
 #     #check if the provisional file for this month exists (the read in and process function returns an empty df if the provisional is for a previous month)
 #     if len(provisional)==0:
+#         raise ValueError('Problem! Cannot make revisions as there is no provisional schedule for this month')
 
-#         #make the allocations and save a provisional file
-#         optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
+#     #only works for manual swappages for now
 
-#     #try again
-#     provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
+
+
 
 
 
