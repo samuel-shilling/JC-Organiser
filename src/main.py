@@ -26,6 +26,7 @@ def main():
 
     #optimise allocations
     final=optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS)
+    print(final)
 
     prompt = f'''
     This needs to be a prompt for the LLM to use to communicate between the algorithm (above code) and the group (it needs to send the algorithm output, re-run the code based on people in the group saying they are not available, add and remove people from the current JC member list)
