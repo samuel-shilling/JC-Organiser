@@ -26,7 +26,7 @@ def get_current_JC_members(path):
     try:
         df=pd.read_csv(path)
     except:
-        raise ValueError('Need injection list of members! This should be a .csv file with one column: name/ A/ B/ etc...')
+        raise ValueError('Need injection list of members! Please refer to readme for instructions')
 
     #convert to list
     result=df['name'].str.strip().tolist()
@@ -51,14 +51,17 @@ def get_speaker_histories(path):
     #it should exist and be able to read in
     #if it doesnt exist, make it
     try:
-        df=pd.read_csv(path,parse_dates=['date'])
+        df=pd.read_csv(path)
+        df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
         df['name']=df['name'].str.strip()
+
     except FileNotFoundError:
         df=pd.DataFrame(columns=COLUMNS)
         df["date"]=pd.to_datetime(df["date"])
 
 
     return(df)
+
 
 
 
@@ -113,11 +116,10 @@ def compute_statistics(history, people,ROLES):
 
 
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
-def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
+def optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
     #get the meeting dates for this month
     meeting_dates=get_meeting_dates_this_month(JC_DAYS)
-
 
     #empty lists for the selections to be saved to
     allocations=[]
@@ -130,7 +132,7 @@ def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,W
         #set the selection criteria depending on the role
         if role=='chair' or role=='co-chair':
             num=1
-            dates=['whole month']
+            dates=[meeting_dates[0]]
         else:
             num=NUM_OF_SPEAKERS
             dates=meeting_dates
@@ -165,14 +167,26 @@ def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,W
         results=pd.DataFrame(allocations, columns=['date', 'name', 'role'])
 
     #save the provisional allocations
-    results.to_csv("{}/data/{}/{}_provisional.csv".format(root_path,WHICH,WHICH),index=False)
+    results['date']=pd.to_datetime(results['date'])
+    results.to_csv("{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
 
+    
     return(results)
 
 # #swaps should be between two people in one month, or between 
-# def make_revisions_to_schedule(path):
+# def make_revisions_to_schedule(root_path,path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
 #     #get the provisional schedule
-#     provisional=get_provisional_schedule(path)
+#     provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
+
+#     #check if the provisional file for this month exists (the read in and process function returns an empty df if the provisional is for a previous month)
+#     if len(provisional)==0:
+
+#         #make the allocations and save a provisional file
+#         optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
+
+#     #try again
+#     provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
+
 
 

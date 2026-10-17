@@ -33,19 +33,44 @@ def get_meeting_dates_this_month(JC_DAYS):
 
     return(meeting_dates_int)
 
-#retrieve the provisional schedule for this month (if it exists)
-def get_provisional_schedule(path):
-    try:
-        df=pd.read_csv(path,parse_dates=['date'])
-        df['name']=df['name'].str.strip()
-    except FileNotFoundError:
-        df=pd.DataFrame(columns=COLUMNS)
-        df["date"]=pd.to_datetime(df["date"])
 
-    #ignore it if it is left over from a different month
-    today=pd.Timestamp.today()
-    df=df[(df['date'].dt.year==today.year) & (df['date'].dt.month==today.month)]
+
+
+
+
+
+#retrieve the provisional schedule for this month and process if it is for this month or not
+def get_and_process_provisional_schedule(path):
+    #get todays date
+    today = pd.Timestamp.today()
+
+    #read in attempt
+    try:
+        df=pd.read_csv(path)
+        df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
+        df['name']=df['name'].str.strip()
+
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=COLUMNS)
+        df['date'] = pd.to_datetime(df['date'])
+
+    #localize ISO date objects only
+    dates=df.loc[df['date']!='whole month', 'date']
+
+    #set boolean to flag if the provisional dates are for the current month or not
+    current_month_exists = False
+    for date in dates:
+        if date.year==today.year and date.month==today.month:
+            current_month_exists = True
+            break
+
+    #If no dates match, empty the dataframe
+    if not current_month_exists:
+        df==df.iloc[0:0].copy()
+
     return(df)
+
+
 
 #simulate dummy data
 def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS):

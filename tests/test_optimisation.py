@@ -45,11 +45,13 @@ meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
 days_since_last_role=compute_statistics(history, people, ROLES)
 
 #optimise allocations
-final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
-
+final=optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
 
 #print
 print(final)
+
+#make revisions
+# provisional=get_provisional_schedule(path)
 
 
 
