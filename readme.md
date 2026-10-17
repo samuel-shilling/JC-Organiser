@@ -1,6 +1,6 @@
 **A tool to automate LU Astro JC**
 
-This project is essentially a Python wrapper for an LLM and a Python scheduling algorithm integrated in Slack. The LLM acts as an interface between the group and the Pyhton algorithm which handles the scheduling and optimization.
+This project is essentially a Python wrapper for an LLM and a Python scheduling algorithm integrated in Slack. The LLM acts as an interface between the group and the Python algorithm which handles the scheduling and optimization.
 
 
 
