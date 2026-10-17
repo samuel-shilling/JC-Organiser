@@ -152,8 +152,8 @@ def optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_S
                 allocations.append([date, name, role])
                 already_used.append(name)
 
-            if role=='chair' or role=='co-chair':
-                chairs.append(name)
+                if role=='chair' or role=='co-chair':
+                    chairs.append(name)
 
         results=pd.DataFrame(allocations, columns=['date', 'name', 'role'])
 
