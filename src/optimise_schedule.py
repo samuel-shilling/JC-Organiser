@@ -8,30 +8,6 @@ root_path=Path(__file__).parent.resolve().parents[0]
 from src.utility_functions import *
 from src.config import *
 
-#get a list of current JC members 
-def get_current_JC_members(path):
-    try:
-        df=pd.read_csv(path)
-    except:
-        raise ValueError('Need injection list of members! Please refer to readme for instructions')
-
-    #convert to list
-    result=df['name'].str.strip().tolist()
-    return(result)
-
-#get the speaker histories in the last 12 months and write file if it doesn't exist (this is the core dataframe of this algorithm)
-def get_speaker_histories(path):
-    try:
-        df=pd.read_csv(path)
-        df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
-        df['name']=df['name'].str.strip()
-    except FileNotFoundError:
-        df=pd.DataFrame(columns=COLUMNS)
-        df["date"]=pd.to_datetime(df["date"])
-    return(df)
-
-
-
 
 
 #get a dataframe containing the number of days since each person has last done each role
