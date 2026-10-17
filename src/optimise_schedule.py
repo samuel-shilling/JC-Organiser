@@ -54,14 +54,15 @@ def get_speaker_histories(path):
         df=pd.DataFrame(columns=COLUMNS)
         df["date"]=pd.to_datetime(df["date"])
 
-    #append todays date
-    df['Today']=pd.Timestamp(dt.datetime.now())
 
     return(df)
 
 
 #get a dataframe containing the number of days since each person has last done each role
 def compute_statistics(history, people,ROLES):
+
+    #Todays date
+    today=pd.Timestamp.today()
 
     #make an empty list to collect peoples stats under
     rows=[]
@@ -89,7 +90,7 @@ def compute_statistics(history, people,ROLES):
                 most_recent_date=individual_history_per_role['date'].max()
 
                 #find the time since then (we need to convert Today from series to a single value and normalize most recent date)
-                days_passed=(individual_history_per_role['Today'].unique()[0] - most_recent_date.normalize()).days
+                days_passed=(today.normalize() - most_recent_date.normalize()).days
 
             #save the minimum number of days passed for this person
             new_row[role]=days_passed

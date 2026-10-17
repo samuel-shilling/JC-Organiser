@@ -15,8 +15,9 @@ def ensure_directory_exists(path):
 def get_meeting_dates_this_month(history, JC_DAYS):
 
     #get current year and month
-    year=history['Today'].unique()[0].year
-    month=history['Today'].unique()[0].month
+    today=pd.Timestamp.today()
+    year=today.normalize().year
+    month=today.normalize().month
 
     #empty list to save meeting dates to
     meeting_dates_int=[]
