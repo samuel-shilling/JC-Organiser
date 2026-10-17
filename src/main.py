@@ -25,7 +25,7 @@ def main():
     days_since_last_role=compute_statistics(history, people, ROLES)
 
     #optimise allocations
-    final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS)
+    final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,'group')
     print(final)
 
     prompt = f'''

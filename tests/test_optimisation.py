@@ -45,11 +45,12 @@ meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
 days_since_last_role=compute_statistics(history, people, ROLES)
 
 #optimise allocations
-final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS)
+final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
+
 
 #print
 print(final)
 
-#need to add provisional schedule file saving (and then eventually comitting to the rolling history)
+
 
 #if someone needs to reschedule then make sure the function does not overwrite allocations for previous meeting dates in this month which have already passed!

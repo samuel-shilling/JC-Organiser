@@ -61,6 +61,8 @@ def get_speaker_histories(path):
     return(df)
 
 
+
+
 #get a dataframe containing the number of days since each person has last done each role
 def compute_statistics(history, people,ROLES):
 
@@ -108,11 +110,14 @@ def compute_statistics(history, people,ROLES):
 
 
 
+
+
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
-def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
+def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
     #get the meeting dates for this month
-    meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
+    meeting_dates=get_meeting_dates_this_month(JC_DAYS)
+
 
     #empty lists for the selections to be saved to
     allocations=[]
@@ -128,7 +133,7 @@ def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
             dates=['whole month']
         else:
             num=NUM_OF_SPEAKERS
-            dates=meeting_dates_int
+            dates=meeting_dates
 
         for date in dates:
             #only consider people who haven't been given a role yet this month
@@ -159,6 +164,15 @@ def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
 
         results=pd.DataFrame(allocations, columns=['date', 'name', 'role'])
 
+    #save the provisional allocations
+    results.to_csv("{}/data/{}/{}_provisional.csv".format(root_path,WHICH,WHICH),index=False)
 
     return(results)
+
+# #swaps should be between two people in one month, or between 
+# def make_revisions_to_schedule(path):
+
+#     #get the provisional schedule
+#     provisional=get_provisional_schedule(path)
+
 

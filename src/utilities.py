@@ -11,7 +11,7 @@ from src.config import *
 def ensure_directory_exists(path):
     os.makedirs("{}/data/group/".format(path),exist_ok=True)
 
-#get the meeting dates this month
+#get the meeting dates this month (writes dates in ISO format)
 def get_meeting_dates_this_month(JC_DAYS):
 
     #get current year and month
@@ -25,11 +25,27 @@ def get_meeting_dates_this_month(JC_DAYS):
     #loop through every day this month
     for day in range(1, calendar.monthrange(year, month)[1]+1):
 
+        date = dt.date(year, month, day)
+
         #check if this date is a Thursday (or whichever day is selected for JC)
-        if dt.date(year, month, day).strftime('%A')==JC_DAYS:
-            meeting_dates_int.append(day)
+        if date.strftime('%A')==JC_DAYS:
+            meeting_dates_int.append(date)
 
     return(meeting_dates_int)
+
+#retrieve the provisional schedule for this month (if it exists)
+def get_provisional_schedule(path):
+    try:
+        df=pd.read_csv(path,parse_dates=['date'])
+        df['name']=df['name'].str.strip()
+    except FileNotFoundError:
+        df=pd.DataFrame(columns=COLUMNS)
+        df["date"]=pd.to_datetime(df["date"])
+
+    #ignore it if it is left over from a different month
+    today=pd.Timestamp.today()
+    df=df[(df['date'].dt.year==today.year) & (df['date'].dt.month==today.month)]
+    return(df)
 
 #simulate dummy data
 def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS):
