@@ -22,7 +22,7 @@ ensure_directory_exists(root_path)
 
 
 #if dummy, generate the data
-if WHICH=='group':
+if WHICH!='group':
     generate_dummy_data(root_path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS)
 
 #need to test for list of JC members and raise error if it doesnt exist
