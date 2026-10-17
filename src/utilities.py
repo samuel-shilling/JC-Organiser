@@ -12,7 +12,7 @@ def ensure_directory_exists(path):
     os.makedirs("{}/data/group/".format(path),exist_ok=True)
 
 #get the meeting dates this month
-def get_meeting_dates_this_month(history, JC_DAYS):
+def get_meeting_dates_this_month(JC_DAYS):
 
     #get current year and month
     today=pd.Timestamp.today()

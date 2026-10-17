@@ -44,6 +44,8 @@ def get_speaker_histories(path):
 
     etc...
 
+    note that dates MUST be ISO format (so write them as such in a texteditor - not excel)
+
     """
 
     #it should exist and be able to read in
@@ -110,7 +112,7 @@ def compute_statistics(history, people,ROLES):
 def optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
 
     #get the meeting dates for this month
-    meeting_dates_int=get_meeting_dates_this_month(history, JC_DAYS)
+    meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
 
     #empty lists for the selections to be saved to
     allocations=[]
@@ -139,7 +141,7 @@ def optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_S
 
             #shuffle first (so people with same days are re-ordered for sorting) then sort by role
             shuffled=candidates.sample(frac=1)
-            sorted_candidates = shuffled.sort_values(by=role, ascending=False)
+            sorted_candidates = shuffled.sort_values(by=role, ascending=False,kind='stable')
 
             #take the specified number of names required from the top of the list (the longest time since they last did this role)
             chosen_names = sorted_candidates['name'].head(num).tolist()

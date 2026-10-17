@@ -37,7 +37,7 @@ people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,W
 history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
 
 #get the meeting dates this month
-meeting_dates_int=get_meeting_dates_this_month(history, JC_DAYS)
+meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
 
 #get statistics
 days_since_last_role=compute_statistics(history, people, ROLES)
@@ -50,3 +50,4 @@ print(final)
 
 #need to add provisional schedule file saving (and then eventually comitting to the rolling history)
 
+#if someone needs to reschedule then make sure the function does not overwrite allocations for previous meeting dates in this month which have already passed!
