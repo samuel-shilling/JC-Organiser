@@ -3,7 +3,21 @@
 This project is essentially a Python wrapper for an LLM and a Python scheduling algorithm integrated in Slack. The LLM acts as an interface between the group and the Python algorithm which handles the scheduling and optimization.
 
 
+**Instructions for setting up**
+1. Inject member list
+- Go to JC_Organiser/data/group/ (make the group folder if needed)
+- Make a plain text file called 'group_names.csv' and enter 'name' as the header followed by the JC member names 
+- e.g.:
+name
+Forename1 Surname1
+Forename2 Surname2
 
+2. Inject speaker history list
+- Go to JC_Organiser/data/group/ (make the group folder if needed)
+- Make a plain text file called 'group_history.csv' and enter 'date,name,role' as the header row 
+- Following rows must have dates in ISO format 'YYYY-MM-DD', names must be spelt the same as in group_names.csv, roles must be either 'speaker, chair, co-chair'
+
+3. Run main
 
 
 **How does it work**
