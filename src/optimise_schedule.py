@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
-from src.utilities import *
+from src.utility_functions import *
 from src.config import *
 
 #get a list of current JC members 

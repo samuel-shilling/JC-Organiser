@@ -6,7 +6,7 @@ root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
 from src.optimise_schedule import *
-from src.utilities import *
+from src.utility_functions import *
 from src.config import *
 
 #main function

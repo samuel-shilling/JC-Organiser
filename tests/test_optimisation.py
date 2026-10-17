@@ -7,7 +7,7 @@ root_path=Path(__file__).parent.resolve().parents[0]
 #imports
 from src.optimise_schedule import *
 from src.config import *
-from src.utilities import *
+from src.utility_functions import *
 
 #which test to run? enter 'group' or 'dummy'
 WHICH='group'
