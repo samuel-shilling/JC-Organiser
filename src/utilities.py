@@ -69,64 +69,64 @@ def get_and_process_provisional_schedule(path):
 
 
 
-#simulate dummy data
-def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS):
-    """Writes data/history.csv in the same format the real monthly file will use:
+# #outdated- simulate dummy data
+# def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS):
+#     """Writes data/history.csv in the same format the real monthly file will use:
 
-        date,name,role
-        02/10/2025,C,chair
-        02/10/2025,D,co-chair
-        02/10/2025,E,speaker
-        ... etc.
+#         date,name,role
+#         02/10/2025,C,chair
+#         02/10/2025,D,co-chair
+#         02/10/2025,E,speaker
+#         ... etc.
 
-    - dates are DD/MM/YYYY, one row per person per role per date
-    - chair and co-chair rows are dated on the first Thursday of their month
-    - speaker rows are dated on the Thursday they spoke (2 per session)
-    - covers the 12 months BEFORE the current month
-    - two people (S and T) are "new members" with no history at all
-    """
+#     - dates are DD/MM/YYYY, one row per person per role per date
+#     - chair and co-chair rows are dated on the first Thursday of their month
+#     - speaker rows are dated on the Thursday they spoke (2 per session)
+#     - covers the 12 months BEFORE the current month
+#     - two people (S and T) are "new members" with no history at all
+#     """
 
-    #seed
-    random.seed(42)
+#     #seed
+#     random.seed(42)
 
-    #alphabetic letters as placeholders for peoples names
-    people_with_history=list('ABCDEFGHIJKLMNOPQRST')
-    JC_members=list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+#     #alphabetic letters as placeholders for peoples names
+#     people_with_history=list('ABCDEFGHIJKLMNOPQRST')
+#     JC_members=list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
     
-    #sampling period over the last 12 months
-    months_back=12
+#     #sampling period over the last 12 months
+#     months_back=12
     
-    queue=deque(random.sample(people_with_history, len(people_with_history)))
-    this_month=pd.Timestamp.today().to_period('M')
-    rows=[]
+#     queue=deque(random.sample(people_with_history, len(people_with_history)))
+#     this_month=pd.Timestamp.today().to_period('M')
+#     rows=[]
 
-    for months_ago in range(months_back, 0, -1):
-        period = this_month - months_ago
-        meeting_days = pd.date_range(period.start_time, period.end_time, freq='W-{}'.format(JC_DAYS[:3]))
+#     for months_ago in range(months_back, 0, -1):
+#         period = this_month - months_ago
+#         meeting_days = pd.date_range(period.start_time, period.end_time, freq='W-{}'.format(JC_DAYS[:3]))
 
-        #list to remove people from the pool if they have already had a role in a month
-        used = []
+#         #list to remove people from the pool if they have already had a role in a month
+#         used = []
 
-        def next_person():
-            while True:
-                name = queue.popleft()
-                queue.append(name)
-                if name not in used:
-                    used.append(name)
-                    return name
+#         def next_person():
+#             while True:
+#                 name = queue.popleft()
+#                 queue.append(name)
+#                 if name not in used:
+#                     used.append(name)
+#                     return name
 
-        rows.append([meeting_days[0], next_person(), 'chair'])
-        rows.append([meeting_days[0], next_person(), 'co-chair'])
+#         rows.append([meeting_days[0], next_person(), 'chair'])
+#         rows.append([meeting_days[0], next_person(), 'co-chair'])
 
-        for days in meeting_days:
-            for _ in range(SPEAKERS_PER_SESSION):
-                rows.append([days, next_person(), 'speaker'])
+#         for days in meeting_days:
+#             for _ in range(SPEAKERS_PER_SESSION):
+#                 rows.append([days, next_person(), 'speaker'])
 
-    history = pd.DataFrame(rows, columns=['date', 'name', 'role'])
-    history.to_csv('{}/data/dummy/dummy_history.csv'.format(path), index=False, date_format='%Y-%m-%d')
+#     history = pd.DataFrame(rows, columns=['date', 'name', 'role'])
+#     history.to_csv('{}/data/dummy/dummy_history.csv'.format(path), index=False, date_format='%Y-%m-%d')
 
-    print(history.head(12).to_string(index=False))
-    print(f"\n{len(history)} rows written to data/dummy/dummy_history.csv")
+#     print(history.head(12).to_string(index=False))
+#     print(f"\n{len(history)} rows written to data/dummy/dummy_history.csv")
 
-    dummy_names=pd.DataFrame(JC_members, columns=['name'])
-    dummy_names.to_csv('{}/data/dummy/dummy_names.csv'.format(path), index=False)
+#     dummy_names=pd.DataFrame(JC_members, columns=['name'])
+#     dummy_names.to_csv('{}/data/dummy/dummy_names.csv'.format(path), index=False)
