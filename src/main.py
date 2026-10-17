@@ -12,6 +12,9 @@ from src.config import *
 #main function
 def main():
 
+    #test the group directory exists
+    ensure_directory_exists(root_path)
+
     #get list of JC members
     people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,'group','group'))
 

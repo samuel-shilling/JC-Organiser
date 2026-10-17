@@ -25,8 +25,13 @@ ensure_directory_exists(root_path)
 if WHICH=='group':
     generate_dummy_data(root_path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS)
 
+#need to test for list of JC members and raise error if it doesnt exist
+
 #get list of JC members
 people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
+#need to test what happens if there is no speaker history
+
 
 #read in speaker histories
 history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
