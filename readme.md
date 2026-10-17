@@ -2,6 +2,8 @@
 
 This project is essentially a Python wrapper for an LLM and a Python scheduling algorithm integrated in Slack. The LLM acts as an interface between the group and the Python algorithm which handles the scheduling and optimization.
 
+This package is not self-contained. It requires some manual setup (i.e. user input of JC members). See steps below.
+
 
 **Manual steps for first time usage**
 1. Create injection member list
