@@ -50,6 +50,7 @@ def get_speaker_histories(path):
     #if it doesnt exist, make it
     try:
         df=pd.read_csv(path,parse_dates=['date'])
+        df['name']=df['name'].str.strip()
     except FileNotFoundError:
         df=pd.DataFrame(columns=COLUMNS)
         df["date"]=pd.to_datetime(df["date"])
