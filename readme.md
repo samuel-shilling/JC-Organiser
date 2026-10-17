@@ -26,7 +26,7 @@ This project is essentially a Python wrapper for an LLM and a Python scheduling 
 
 **Instructions for other users to edit the project**
 1. Clone the github repo to get a local copy 
-- git clone https://github.com/samuel-shilling/LU-Astro-JC-Organiser.git JC_organiser/
+- git clone https://github.com/samuel-shilling/JC-Organiser.git JC_organiser/
 - cd JC_organiser
 
 2. (recommended) Setup a conda environment using the pre-packaged configuration to manage the pre-requisites
