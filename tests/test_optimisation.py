@@ -27,8 +27,10 @@ if WHICH!='group':
 
 #need to test for list of JC members and raise error if it doesnt exist
 
+
 #get list of JC members
 people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
 
 #need to test what happens if there is no speaker history
 
@@ -43,7 +45,7 @@ meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
 days_since_last_role=compute_statistics(history, people, ROLES)
 
 #optimise allocations
-final=optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS)
+final=optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS)
 
 #print
 print(final)

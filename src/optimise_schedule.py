@@ -109,7 +109,7 @@ def compute_statistics(history, people,ROLES):
 
 
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
-def optimise_allocations(history, days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
+def optimise_allocations(days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS):
 
     #get the meeting dates for this month
     meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
