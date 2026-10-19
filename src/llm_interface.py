@@ -25,6 +25,7 @@ def show_schedule() -> str:
 
 def remove_person(name: str, role: str, date: str) -> str:
     """Remove a member from a role on a date in the provisional schedule.
+    Good to use if someone is unavailable!
 
     Args:
         name: Full name of the member as it appears in the schedule

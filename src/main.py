@@ -9,8 +9,8 @@ from src.provisional_schedule import *
 from src.utilities import *
 from src.config import *
 
-#main function
-def main():
+#main function for generating the allocations (run daily)
+def main_allocations():
 
     #get core data objects
     people,history=data_retrieval(root_path,'group')
@@ -40,54 +40,62 @@ def main():
     #save the updated provisional schedule
     save_updated_provisionals(root_path,upcoming,'group')
 
+    return(upcoming)
 
 
+#main function for removing people from the schedule if they are unavailable
+def main_revisions_removal(removal_name,removal_role,removal_date):
 
-    prompt = f'''
-    This needs to be a prompt for the LLM to use to communicate between the algorithm (above code) and the group (it needs to send the algorithm output, re-run the code based on people in the group saying they are not available, add and remove people from the current JC member list)
-    {upcoming}
+    #get core data objects
+    people,_=data_retrieval(root_path,'group')
 
-    '''
+    #get the provisional schedule (will return empty if it doesnt exist)
+    provisional=get_provisional_schedule(root_path, 'group')
 
-    # client = OpenAI()
-    # response = client.chat.completions.create(model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}])
-    # result=response.choices[0].message.content
+    #separate into past (confirmed) and future (upcoming) dates
+    _,upcoming=filter_provisional_schedule(provisional)
 
-    #final='placeholder'
+    #ensure correct format
+    check_member(removal_name,people)
+    removal_role=check_role(removal_role)
+    removal_date=clean_date(removal_date)
 
-    #make removals (these need to be user input from the group to the LLM then into these variables)
-    removal_name=None 
-    removal_role=None
-    removal_date=None
-    if removal_name is not None:
+    #make changes
+    upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
+    #print('removal: {}, new schedule: {}'.format(removal_name,upcoming))
 
-        #ensure correct format
-        check_member(removal_name,people)
-        removal_role=check_role(removal_role)
-        removal_date=clean_date(removal_date)
-
-        #make changes
-        upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
-        print('removal: {}, new schedule: {}'.format(removal_name,upcoming))
-
-    #same for manual allocations
-    allocation_name=None
-    allocation_role=None
-    allocation_date=None
-    if allocation_name is not None:
-
-        #ensure formatting
-        check_member(allocation_name,people)
-        allocation_role=check_role(allocation_role)
-        allocation_date=clean_date(allocation_date)
-
-        upcoming=manual_role_allocation(upcoming,allocation_name,allocation_role,allocation_date)
-        print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),upcoming))
-
-        #save the updated provisionals
-        save_updated_provisionals(root_path,upcoming,'group')
+    #save the updated provisionals
+    save_updated_provisionals(root_path,upcoming,'group')
 
     return(upcoming)
+
+#main function for adding people from the schedule if they volunteer to take a role on a date
+def main_revisions_removal(allocation_name,allocation_role,allocation_date):
+
+    #get core data objects
+    people,_=data_retrieval(root_path,'group')
+
+    #get the provisional schedule (will return empty if it doesnt exist)
+    provisional=get_provisional_schedule(root_path, 'group')
+
+    #separate into past (confirmed) and future (upcoming) dates
+    _,upcoming=filter_provisional_schedule(provisional)
+
+    #ensure correct format
+    check_member(allocation_name,people)
+    removal_role=check_role(allocation_role)
+    removal_date=clean_date(allocation_date)
+
+    #make changes
+    upcoming=manual_role_allocation(upcoming,allocation_name,allocation_role,allocation_date)
+    print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),upcoming))
+
+    #save the updated provisionals
+    save_updated_provisionals(root_path,upcoming,'group')
+
+    return(upcoming)
+
+
 
 #run the main function
 if __name__ == "__main__":
