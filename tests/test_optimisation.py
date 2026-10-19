@@ -5,9 +5,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
-from src.optimise_schedule import *
+from schedule_generation import *
 from src.config import *
-from src.utility_functions import *
+from utilities import *
 
 #need to do:
 # add name typo detection
@@ -19,7 +19,27 @@ from src.utility_functions import *
 WHICH='group'
 
 #get core data objects
-meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
+# meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
+
+###first run all the absolute variables
+
+#test the group directory exists
+ensure_directory_exists(root_path)
+
+#get the meeting dates for this month
+meeting_dates_this_month=get_meeting_dates_this_month(JC_DAYS)
+
+#get the meeting dates for next month
+meeting_dates_next_month=get_meeting_dates_next_month(JC_DAYS)
+
+#get list of JC members
+people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
+#get speaker history
+history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
+
+#get statistics
+days_since_last_role=compute_statistics(history, people, ROLES)
 
 #read in the provisional schedule (which may not yet exist for this month)
 provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)

@@ -7,27 +7,28 @@ root_path=Path(__file__).parent.resolve().parents[0]
 #imports
 from src.config import *
 
-#get a list of current JC members 
-def get_current_JC_members(path):
-    try:
-        df=pd.read_csv(path)
-    except:
-        raise ValueError('Need injection list of members! Please refer to readme for instructions')
+# #top level function to retrieve all central data objects
+# def data_retrieval(root_path,WHICH,JC_DAYS):
 
-    #convert to list
-    result=df['name'].str.strip().tolist()
-    return(result)
+    # #test the group directory exists
+    # ensure_directory_exists(root_path)
 
-#get the speaker histories in the last 12 months and write file if it doesn't exist (this is the core dataframe of this algorithm)
-def get_speaker_histories(path):
-    try:
-        df=pd.read_csv(path)
-        df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
-        df['name']=df['name'].str.strip()
-    except FileNotFoundError:
-        df=pd.DataFrame(columns=COLUMNS)
-        df["date"]=pd.to_datetime(df["date"])
-    return(df)
+    # #get the meeting dates for this month
+    # meeting_dates_this_month=get_meeting_dates_this_month(JC_DAYS)
+
+    # #get the meeting dates for next month
+    # meeting_dates_next_month=get_meeting_dates_next_month(JC_DAYS)
+
+    # #get list of JC members
+    # people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
+    # #get speaker history
+    # history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
+
+    # #get statistics
+    # days_since_last_role=compute_statistics(history, people, ROLES)
+
+#     return(meeting_dates_this_month,meeting_dates_next_month,people,history,days_since_last_role)
 
 
 #check the /data/group/ directory exists as this is ignored in github
@@ -87,101 +88,72 @@ def get_meeting_dates_next_month(JC_DAYS):
 
     return(meeting_dates_int)
 
+#get a list of current JC members 
+def get_current_JC_members(path):
+    try:
+        df=pd.read_csv(path)
+    except:
+        raise ValueError('Need injection list of members! Please refer to readme for instructions')
 
-#retrieve the provisional schedule for this month and process if it is for this month or not
-def get_provisional_schedule(root_path,WHICH,meeting_dates_this_month,meeting_dates_next_month):
+    #convert to list
+    result=df['name'].str.strip().tolist()
+    return(result)
 
-    #set local path
-    path="{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH)
-
-    #read in attempt
+#get the speaker histories in the last 12 months and write file if it doesn't exist (this is the core dataframe of this algorithm)
+def get_speaker_histories(path):
     try:
         df=pd.read_csv(path)
         df['date']=pd.to_datetime(df['date'], format='%Y-%m-%d')
         df['name']=df['name'].str.strip()
-
     except FileNotFoundError:
-        df = pd.DataFrame(columns=COLUMNS)
-        df['date'] = pd.to_datetime(df['date'])
+        df=pd.DataFrame(columns=COLUMNS)
+        df["date"]=pd.to_datetime(df["date"])
+    return(df)
 
-    #separate provisional schedules for the current month and the next month
-    this_month=df[df['date'].isin(meeting_dates_this_month)]
-    next_month=df[df['date'].isin(meeting_dates_next_month)]
-    full_provisional=df.copy()
-    return(full_provisional,this_month,next_month)
+#get a dataframe containing the number of days since each person has last done each role
+def compute_statistics(history, people,ROLES):
 
-def filter_provisional_schedule(df,meeting_dates):
+    #Todays date
+    today=pd.Timestamp.today()
 
-    #get todays date
-    today = pd.Timestamp.today().normalize()
+    #make an empty list to collect peoples stats under
+    rows=[]
 
-    #get the dates remaining this month
-    remaining_dates=[d for d in meeting_dates if d>=today]
+    #loop through everyone and get their statistics individually
+    for name in people:
 
-    #reduce provisional schedule to only contain future dates
-    df_historical=df[~df['date'].isin(remaining_dates)]
-    df_remaining=df[df['date'].isin(remaining_dates)]
+        #rolling dictionary to collate individual peoples stats under
+        new_row={'name': name}
 
-    return(df_historical,df_remaining)
+        #isolate the data for each person
+        individual_history=history[history['name']==name]            
 
+        #get stats for each role individually
+        for role in ROLES:
 
-def save_confirmed_provisionals_to_history(root_path,provisional,history,meeting_dates,WHICH):
+            #all dates this person has done this role
+            individual_history_per_role=individual_history[individual_history['role']==role]
 
-    #filter privisional to get the confirmed dates and the remaining provisional dates (not needed here)
-    confirmed_provisional_dates,_=filter_provisional_schedule(provisional,meeting_dates)
+            #compute days since they last did this role (if someone has never had this role give 1e6 days)
+            if len(individual_history_per_role)==0:                         
+                days_passed=1e6
+            else:
+                #get the most recent date
+                most_recent_date=individual_history_per_role['date'].max()
 
-    #get the confirmed dates which have not already been saved to history (to prevent duplicate merges and saves)
-    unsaved_dates=np.setdiff1d(confirmed_provisional_dates['date'].unique(),history['date'].unique())
+                #find the time since then (we need to convert Today from series to a single value and normalize most recent date)
+                days_passed=(today.normalize() - most_recent_date.normalize()).days
 
-    #select confirmed dates for merging
-    for_merging=confirmed_provisional_dates[confirmed_provisional_dates['date'].isin(unsaved_dates)]
+            #save the minimum number of days passed for this person
+            new_row[role]=days_passed
+            
+        #save to the total set of rows
+        rows.append(new_row)
 
-    #merge if there are dates, if not then the history is already up to date
-    if len(for_merging)>0:
-        #save the confirmed provisional dates to history
-        history_updated=pd.concat([history,for_merging],ignore_index=True)
+    #convert to a dataframe for all people
+    results=pd.DataFrame(rows)
 
-        #save updated history
-        history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
-    else:
-        history_updated=history.copy()
-
-    #return
-    return(history_updated)
-
-
-#can handle the revisions here
-def make_removals(provisional_full,path,name,role,date,WHICH):
-
-    #date needs to be in pd.Timestamp formats
-
-    #just slice the dataframe to exclude where the person is selected on which date for which role
-    revised_provisional_full=provisional_full[~ ( (provisional_full['name']==name) &(provisional_full['role']==role) &(provisional_full['date']==date) )]
-
-    #save the provisional allocations
-    revised_provisional_full['date']=pd.to_datetime(revised_provisional_full['date'])
-    revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
-
-    return(revised_provisional_full)
-
-
-def manual_role_allocation(provisional_full,path,name,role,date,WHICH):
-
-    #just slice the dataframe to exclude where the person is selected on which date for which role
-    new_row={'name':name,'role':role,'date':date}
-
-    #merge the new allocation
-    revised_provisional_full=pd.concat([provisional_full,pd.DataFrame([new_row])],ignore_index=True)
-
-    #sort by date
-    revised_provisional_full = revised_provisional_full.sort_values(by='date').reset_index(drop=True)
-
-    #save the provisional allocations
-    revised_provisional_full['date']=pd.to_datetime(revised_provisional_full['date'])
-    revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
-
-    return(revised_provisional_full)
-
+    return(results)
 
 
 # #outdated- simulate dummy data
