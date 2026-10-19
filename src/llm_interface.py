@@ -63,11 +63,12 @@ def show_schedule() -> str:
     Returns:
         JSON with the upcoming date, name and role rows
     """
-    prov = get_provisional_schedule(root_path, "group")
-    _, up = filter_provisional_schedule(prov)
-    display=up.copy()
-    display= display.assign(date=display["date"].dt.strftime("%Y-%m-%d"))
-    return(json.dumps({"ok": True, "schedule": display.to_dict("records")}))
+    provisional=get_provisional_schedule(root_path, "group")
+    _, upcoming = filter_provisional_schedule(provisional)
+
+    #format the dates
+    upcoming=upcoming["date"].dt.strftime("%Y-%m-%d")
+    return(json.dumps({"ok": True, "schedule": upcoming.to_dict("records")}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
     """Remove a member from a role on a date in the provisional schedule.

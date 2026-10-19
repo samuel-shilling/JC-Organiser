@@ -9,7 +9,7 @@ This project is essentially a Python scheduling algorithm for LU Astro. JC.
 
 
 
-**Installation instructions**
+**Installation instructions (including LLM)**
 
 1. Clone the github repo to get a local copy 
 ```bash
@@ -71,10 +71,14 @@ YYYY-MM-DD,     Forename2 Surname2, Example_role
 
 9. Run locally
 ```bash
-python -m src.main
+python -m src.llm_interface
 ```
 
-10. Setup Slack bot
+**Slack bot setup instructions**
+Note: full instructions at https://docs.slack.dev/tools/bolt-python/creating-an-app/
+
+1. 
+
 
 
 **How to re-active the project (if local machine is restarted for example)**
