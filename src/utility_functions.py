@@ -77,18 +77,11 @@ def get_provisional_schedule(root_path,dates_this_month,WHICH):
         df['date'] = pd.to_datetime(df['date'])
 
     #set boolean to flag if the provisional dates are for the current month or not
-    current_month_exists=False
-    for date in dates_this_month:
-        if date.year==today.year and date.month==today.month:
-            current_month_exists=True
-            break
-        
-    #If no dates match at all, then we schedule doesnt exist yet (need to run main.py first)
-    if not current_month_exists:
-        # df=df.iloc[0:0].copy()
-        raise ValueError('Cannot make revisions to a schedule that does not exist, let the schedule be determined first')
+    this_month=df[(df['date'].dt.year==today.year)&(df['date'].dt.month==today.month)]
+    if len(this_month)==0:
+        return(None)
+    return(this_month)
 
-    return(df)
 
 def filter_provisional_schedule(df,dates_this_month):
 

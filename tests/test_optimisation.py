@@ -21,11 +21,14 @@ WHICH='group'
 #get core data objects
 meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
 
-#try for an existing provisional schedule, if it doesnt exist (for this month) generate a new one
-try:
-    provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)
-except:
+#read in the provisional schedule (which may not yet exist for this month)
+provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)
+
+#if the provisional does not yet exist (None type), generate one
+if provisional_full is None:
     provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH)
+
+#test print
 print(provisional_full)
 
 #make revisions (for removals) 
