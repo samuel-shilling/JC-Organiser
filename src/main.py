@@ -15,11 +15,12 @@ def main():
     #get core data objects
     meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,'group',JC_DAYS)
 
-    #try to read an existing provisional schedule (for this month), if it doesnt exist (for this month) generate a new one
-    try:
-        provisional_full=get_provisional_schedule(root_path,meeting_dates,'group')
-    except:
-        provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,'group')
+    #read in the provisional schedule (which may not yet exist for this month)
+    provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)
+
+    #if the provisional does not yet exist (None type), generate one
+    if provisional_full is None:
+        provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH)
     print(provisional_full)
 
     prompt = f'''
