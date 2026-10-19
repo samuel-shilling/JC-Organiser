@@ -111,7 +111,7 @@ def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_t
     confirmed_provisional_dates,_=filter_provisional_schedule(provisional,dates_this_month)
 
     #save the confirmed provisional dates to history
-    history_updated=pd.concat([history,confirmed_provisional_dates])
+    history_updated=pd.concat([history,confirmed_provisional_dates],ignore_index=True)
 
     #save updated history
     history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
@@ -138,7 +138,10 @@ def make_removals(provisional_full,path,name,role,date,WHICH):
 def manual_role_allocation(provisional_full,path,name,role,date,WHICH):
 
     #just slice the dataframe to exclude where the person is selected on which date for which role
-    revised_provisional_full=
+    new_row={'name':name,'role':role,'date':date}
+
+    #merge the new allocation
+    revised_provisional_full=pd.concat([provisional_full,new_row],ignore_index=True)
 
     #save the provisional allocations
     revised_provisional_full['date']=pd.to_datetime(results['date'])
