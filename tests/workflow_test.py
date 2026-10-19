@@ -56,8 +56,5 @@ if removal_name is not None and allocation_name is not None:
     #save the updated provisionals
     save_updated_provisionals(root_path,upcoming,WHICH)
 
-# #for dates that have passed and been confirmed: update the history (needs to run on a weekly basis)
-# history_updated=save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
-# #this is saving everytime!
 
 
