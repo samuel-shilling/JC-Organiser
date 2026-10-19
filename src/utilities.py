@@ -8,6 +8,30 @@ root_path=Path(__file__).parent.resolve().parents[0]
 from src.config import *
 
 
+#top level function to retrieve all central data objects
+def data_retrieval(root_path,WHICH,JC_DAYS):
+
+    #test the group directory exists
+    ensure_directory_exists(root_path)
+
+    #get the meeting dates for this month
+    meeting_dates_this_month=get_meeting_dates_this_month(JC_DAYS)
+
+    #get the meeting dates for next month
+    meeting_dates_next_month=get_meeting_dates_next_month(JC_DAYS)
+
+    #get list of JC members
+    people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
+    #get speaker history
+    history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
+
+    #get statistics
+    days_since_last_role=compute_statistics(history, people, ROLES)
+
+    return(meeting_dates_this_month,meeting_dates_next_month,people,history,days_since_last_role)
+
+
 #check the /data/group/ directory exists as this is ignored in github
 def ensure_directory_exists(path):
     os.makedirs("{}/data/group/".format(path),exist_ok=True)
@@ -132,6 +156,13 @@ def compute_statistics(history, people,ROLES):
 
     return(results)
 
+
+def randomly_select_people_dates_and_roles_for_testing_revisions(df_updated_provisional,people):
+    removal_info=df_updated_provisional.sample()
+    removal_name,removal_role,removal_date=removal_info['name'].unique()[0],removal_info['role'].unique()[0],removal_info['date'].unique()[0]
+
+    allocation_name=np.random.choice(np.setdiff1d(people,df_updated_provisional['name'].unique()))
+    return(removal_name,removal_role,removal_date,allocation_name)
 
 # #outdated- simulate dummy data
 #if dummy, generate the data

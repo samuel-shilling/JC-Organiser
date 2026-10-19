@@ -5,8 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
-from schedule_generation import *
-from utilities import *
+from src.utilities import *
 from src.config import *
 
 
@@ -46,8 +45,8 @@ def filter_provisional_schedule(provisional,meeting_dates_this_month,meeting_dat
     #select remaining dates for this month
     df_remaining_next_month=provisional[provisional['date'].isin(meeting_dates_next_month)]
 
-    #select AND save all remaining provisional dates (across current month and next months)
-    df_updated_provisional=provisional[(provisional['date'].isin(meeting_dates_next_month)) & (provisional['date'].isin(remaining_dates))]
+    #select all remaining provisional dates (across current month and next months)
+    df_updated_provisional=provisional[provisional['date'].isin(meeting_dates_next_month + remaining_dates)]
     
     return(df_confirmed_current_month,df_remaining_current_month,df_remaining_next_month,df_updated_provisional)
 
@@ -83,62 +82,75 @@ def save_updated_provisionals(root_path,df_updated_provisional,WHICH):
 
 
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
-def generate_provisional(df_remaining_next_month,days_since_last_role, meeting_dates_next_month, ROLES, NUM_OF_SPEAKERS,WHICH):
+def generate_provisional(df_remaining_current_month,df_remaining_next_month,days_since_last_role, meeting_dates_next_month, ROLES, NUM_OF_SPEAKERS,WHICH):
 
-    #generate a new provisional schedule only if there are no provisional dates for the next month
-    assert df_remaining_next_month['date'].max()<meeting_dates_next_month.min():
+    #todays date
+    today=pd.Timestamp.today().normalize()
+
+    #only do schedule generations if a) they havent already been done, and b) we are within 5 days of the first JC of next month:
+    if pd.Timedelta(days=0) <= meeting_dates_next_month[0].normalize()-today <= pd.Timedelta(days=5) and len(df_remaining_next_month)==0:
+
+        #empty lists for the selections to be saved to
+        allocations=[]
+        already_used=[]
+        chairs=[]
+
+        #need to account for edge case where next months schedule is being generated before the final talk in the current month (which will not yet be appended to history) below:
+        #edge case (assume these people will give their provisional talk and class them as already_used)
+        # if len(df_remaining_current_month)>0:
+        #     already_used.append([df_remaining_current_month['name'].unique()])
+        #note: edge case resolved if we only do schedule generation 5 days before the first JC of the month!
         
-    #empty lists for the selections to be saved to
-    allocations=[]
-    already_used=[]
-    chairs=[]
+        #loop through each role
+        for role in ROLES:  
 
-    #loop through each role
-    for role in ROLES:  
+            #set the selection criteria depending on the role
+            if role=='chair' or role=='co-chair':
+                num=1
+                dates=[meeting_dates_next_month[0]]
+            else:
+                num=NUM_OF_SPEAKERS
+                dates=meeting_dates_next_month
 
-        #set the selection criteria depending on the role
-        if role=='chair' or role=='co-chair':
-            num=1
-            dates=[meeting_dates_next_month[0]]
-        else:
-            num=NUM_OF_SPEAKERS
-            dates=meeting_dates_next_month
-
-        for date in dates:
-            #only consider people who haven't been given a role yet this month
-            candidates=days_since_last_role[~days_since_last_role['name'].isin(already_used)]
-
-            #if we've run out of people, start a new round (chairs stay excluded)
-            if len(candidates)<num:
-                already_used=chairs.copy()
+            for date in dates:
+                #only consider people who haven't been given a role yet this month
                 candidates=days_since_last_role[~days_since_last_role['name'].isin(already_used)]
 
-            #shuffle first (so people with same days are re-ordered for sorting) then sort by role
-            shuffled=candidates.sample(frac=1)
-            sorted_candidates = shuffled.sort_values(by=role, ascending=False,kind='stable')
 
-            #take the specified number of names required from the top of the list (the longest time since they last did this role)
-            chosen_names = sorted_candidates['name'].head(num).tolist()
 
-            #for the people chosen, put them into already used list so they cannot be chosen again this month
-            #only need to do this for speakers as chairs are only selected once
-            for name in chosen_names:
+                #if we've run out of people, start a new round (chairs stay excluded)
+                if len(candidates)<num:
+                    already_used=chairs.copy()
+                    candidates=days_since_last_role[~days_since_last_role['name'].isin(already_used)]
 
-                #save
-                allocations.append([date, name, role])
-                already_used.append(name)
+                #shuffle first (so people with same days are re-ordered for sorting) then sort by role
+                shuffled=candidates.sample(frac=1)
+                sorted_candidates = shuffled.sort_values(by=role, ascending=False,kind='stable')
 
-                if role=='chair' or role=='co-chair':
-                    chairs.append(name)
+                #take the specified number of names required from the top of the list (the longest time since they last did this role)
+                chosen_names = sorted_candidates['name'].head(num).tolist()
 
-        new_provisionals=pd.DataFrame(allocations, columns=['date', 'name', 'role'])
+                #for the people chosen, put them into already used list so they cannot be chosen again this month
+                #only need to do this for speakers as chairs are only selected once
+                for name in chosen_names:
 
-    #update and save the provisional allocations
-    provisional=pd.concat([df_remaining_next_month,new_provisionals])
-    provisional['date']=pd.to_datetime(provisional['date'])
-    provisional.to_csv("{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
-    
-    return(provisional)
+                    #save
+                    allocations.append([date, name, role])
+                    already_used.append(name)
+
+                    if role=='chair' or role=='co-chair':
+                        chairs.append(name)
+
+            new_provisionals=pd.DataFrame(allocations, columns=['date', 'name', 'role'])
+
+        #update and save the provisional allocations
+        provisional=pd.concat([df_remaining_next_month,new_provisionals])
+        provisional['date']=pd.to_datetime(provisional['date'])
+        provisional.to_csv("{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+    else:
+        pass
+
+
 
 #remove manually specified people (for their role and date) from the provisional schedule 
 def make_removals(provisional_full,name,role,date):
