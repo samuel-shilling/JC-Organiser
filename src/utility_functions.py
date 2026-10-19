@@ -112,7 +112,7 @@ def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_t
     #merge if there are dates, if not then the history is already up to date
     if len(for_merging)>0:
         #save the confirmed provisional dates to history
-        history_updated=pd.concat([history,confirmed_provisional_dates],ignore_index=True)
+        history_updated=pd.concat([history,for_merging],ignore_index=True)
 
         #save updated history
         history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
