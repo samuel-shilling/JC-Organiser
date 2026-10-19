@@ -1,42 +1,16 @@
-**A tool to automate LU Astro JC**
+This project is essentially a Python scheduling algorithm for LU Astro. JC. 
 
-This project is essentially a Python wrapper for an LLM and a Python scheduling algorithm integrated in Slack. The LLM acts as an interface between the group and the Python algorithm which handles the scheduling and optimization.
+**Main features**
+1. Deterministically fairly allocate each JC role to each member automatically and generate a rolling schedule
 
-This package is not self-contained. It requires some manual setup (i.e. user input of JC members). See steps below.
+2. Make revisions to the schedule (currently semi-automatic as it requires someone to volunteer to cover if someone else is unavailable)
 
-**Installation**
-
-
-
-Install Ollama (see https://docs.ollama.com/quickstart)
-- curl -fsSL https://ollama.com/install.sh | sh
-- ollama pull gemma4:e2b
-- ollama run gemma4:e2b
-
-run from project root with:
-* python -m src.llm_interface
-
-
-**Manual steps for first time usage**
-1. Create injection member list
-- Go to JC_Organiser/data/group/ (make the group folder if needed)
-- Make a plain text file called 'group_names.csv' and enter 'name' as the header followed by the JC member names 
-- e.g.:
-name
-Forename1 Surname1
-Forename2 Surname2
-
-2. Create injection speaker history list
-- Go to JC_Organiser/data/group/ (make the group folder if needed)
-- Make a plain text file called 'group_history.csv' and enter 'date,name,role' as the header row 
-- Following rows must have dates in ISO format 'YYYY-MM-DD', names must be spelt the same as in group_names.csv, roles must be either 'speaker, chair, co-chair'
+3. Use a separately installed LLM interface (currently tested with Ollama) to liaise between the algorithm and the JC group members
 
 
 
+**Installation instructions**
 
-
-
-**Instructions for other users to edit the project**
 1. Clone the github repo to get a local copy 
 ```bash
 git clone https://github.com/samuel-shilling/JC-Organiser.git JC_organiser/
@@ -75,7 +49,6 @@ ollama run gemma4:e2b
 ollama show gemma4:e2b 
 ```
 
-
 7. (skippable if supplied with this data) Create mandatory initial data files (part 1)
 - Go to JC_Organiser/data/group/ (make the group folder if needed)
 - Make a plain text file called 'group_names.csv' and enter 'name' as the header followed by the JC member names 
@@ -96,12 +69,27 @@ YYYY-MM-DD,     Forename2 Surname2, Example_role
 - name column entries must match name column entries in group_names.csv
 
 
-9. Test local run
+9. Run locally
 ```bash
 python -m src.main
 ```
 
 10. Setup Slack bot
+
+
+**How to re-active the project (if local machine is restarted for example)**
+ 1. Activate the virtual environment
+ ```bash
+ cd JC_organiser
+ conda activate JC_organiser
+ ```
+
+ 2. Restart the LLM interface
+ ```bash
+ python -m src.llm_interface
+ ```
+
+
 
 
 

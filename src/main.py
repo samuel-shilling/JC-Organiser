@@ -45,7 +45,7 @@ def main():
 
     prompt = f'''
     This needs to be a prompt for the LLM to use to communicate between the algorithm (above code) and the group (it needs to send the algorithm output, re-run the code based on people in the group saying they are not available, add and remove people from the current JC member list)
-    {final}
+    {upcoming}
 
     '''
 
@@ -81,7 +81,7 @@ def main():
         allocation_role=check_role(allocation_role)
         allocation_date=clean_date(allocation_date)
 
-        upcoming=manual_role_allocation(upcoming,allocation_name,removal_role,removal_date)
+        upcoming=manual_role_allocation(upcoming,allocation_name,allocation_role,allocation_date)
         print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),upcoming))
 
         #save the updated provisionals
