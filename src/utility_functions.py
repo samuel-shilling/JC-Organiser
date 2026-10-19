@@ -34,6 +34,7 @@ def get_speaker_histories(path):
 def ensure_directory_exists(path):
     os.makedirs("{}/data/group/".format(path),exist_ok=True)
 
+
 #get the meeting dates this month (writes dates in ISO format)
 def get_meeting_dates_this_month(JC_DAYS):
 
@@ -55,6 +56,7 @@ def get_meeting_dates_this_month(JC_DAYS):
             meeting_dates_int.append(date)
 
     return(meeting_dates_int)
+
 
 #get the meeting dates this month (writes dates in ISO format)
 def get_meeting_dates_next_month(JC_DAYS):
@@ -87,13 +89,10 @@ def get_meeting_dates_next_month(JC_DAYS):
 
 
 #retrieve the provisional schedule for this month and process if it is for this month or not
-def get_provisional_schedule(root_path,dates_this_month,WHICH):
+def get_provisional_schedule(root_path,WHICH,meeting_dates_this_month,meeting_dates_next_month):
 
     #set local path
     path="{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH)
-
-    #get todays date
-    today = pd.Timestamp.today().normalize()
 
     #read in attempt
     try:
@@ -105,20 +104,19 @@ def get_provisional_schedule(root_path,dates_this_month,WHICH):
         df = pd.DataFrame(columns=COLUMNS)
         df['date'] = pd.to_datetime(df['date'])
 
-    #set boolean to flag if the provisional dates are for the current month or not
-    this_month=df[(df['date'].dt.year==today.year)&(df['date'].dt.month==today.month)]
-    if len(this_month)==0:
-        return(None)
-    return(this_month)
+    #separate provisional schedules for the current month and the next month
+    this_month=df[df['date'].isin(meeting_dates_this_month)]
+    next_month=df[df['date'].isin(meeting_dates_next_month)]
+    full_provisional=df.copy()
+    return(full_provisional,this_month,next_month)
 
-
-def filter_provisional_schedule(df,dates_this_month):
+def filter_provisional_schedule(df,meeting_dates):
 
     #get todays date
     today = pd.Timestamp.today().normalize()
 
     #get the dates remaining this month
-    remaining_dates=[d for d in dates_this_month if d>=today]
+    remaining_dates=[d for d in meeting_dates if d>=today]
 
     #reduce provisional schedule to only contain future dates
     df_historical=df[~df['date'].isin(remaining_dates)]
@@ -127,10 +125,10 @@ def filter_provisional_schedule(df,dates_this_month):
     return(df_historical,df_remaining)
 
 
-def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_this_month,WHICH):
+def save_confirmed_provisionals_to_history(root_path,provisional,history,meeting_dates,WHICH):
 
     #filter privisional to get the confirmed dates and the remaining provisional dates (not needed here)
-    confirmed_provisional_dates,_=filter_provisional_schedule(provisional,dates_this_month)
+    confirmed_provisional_dates,_=filter_provisional_schedule(provisional,meeting_dates)
 
     #get the confirmed dates which have not already been saved to history (to prevent duplicate merges and saves)
     unsaved_dates=np.setdiff1d(confirmed_provisional_dates['date'].unique(),history['date'].unique())
