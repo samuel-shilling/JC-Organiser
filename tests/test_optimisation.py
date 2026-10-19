@@ -34,14 +34,14 @@ print(provisional_full)
 #make revisions (for removals) 
 removal_info=provisional_full.sample()
 removal_name,removal_role,removal_date=removal_info['name'].unique()[0],removal_info['role'].unique()[0],removal_info['date'].unique()[0]
-if removal_name!=None:
+if removal_name is not None:
     revised_provisional_full=make_removals(provisional_full,root_path,removal_name,removal_role,removal_date,WHICH)
 print('removal: {}, new schedule: {}'.format(removal_info,revised_provisional_full))
 
 #make revisions (for manual allocations)
 allocation_name=np.random.choice(np.setdiff1d(people,revised_provisional_full['name'].unique()))
 allocation_role,allocation_date=removal_role,removal_date
-if allocation_name!=None:
+if allocation_name is not None:
     revised_provisional_full=manual_role_allocation(revised_provisional_full,root_path,allocation_name,allocation_role,allocation_date,WHICH)
 print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),revised_provisional_full))
 
