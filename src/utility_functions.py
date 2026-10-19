@@ -110,11 +110,21 @@ def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_t
     #filter privisional to get the confirmed dates and the remaining provisional dates (not needed here)
     confirmed_provisional_dates,_=filter_provisional_schedule(provisional,dates_this_month)
 
-    #save the confirmed provisional dates to history
-    history_updated=pd.concat([history,confirmed_provisional_dates],ignore_index=True)
+    #get the confirmed dates which have not already been saved to history (to prevent duplicate merges and saves)
+    unsaved_dates=np.setdiff1d(confirmed_provisional_dates['date'].unique(),history['date'].unique())
 
-    #save updated history
-    history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+    #select confirmed dates for merging
+    for_merging=confirmed_provisional_dates[confirmed_provisional_dates['date'].isin(unsaved_dates)]
+
+    #merge if there are dates, if not then the history is already up to date
+    if len(for_merging)>0:
+        #save the confirmed provisional dates to history
+        history_updated=pd.concat([history,confirmed_provisional_dates],ignore_index=True)
+
+        #save updated history
+        history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+    else:
+        history_updated=history.copy()
 
     #return
     return(history_updated)

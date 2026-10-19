@@ -44,6 +44,6 @@ print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocati
 
 #for dates that have passed and been confirmed: update the history (needs to run on a weekly basis)
 history_updated=save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
-
+#this is saving everytime!
 
 
