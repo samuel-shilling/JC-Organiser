@@ -55,20 +55,39 @@ def main():
 
     #final='placeholder'
 
-    #make removals and allocations (these need to be user input from the group to the LLM then into these variables)
+    #make removals (these need to be user input from the group to the LLM then into these variables)
     removal_name=None 
-    allocation_name=None
-    if removal_name is not None and allocation_name is not None:
+    removal_role=None
+    removal_date=None
+    if removal_name is not None:
+
+        #ensure correct format
+        check_member(removal_name,people)
+        removal_role=check_role(removal_role)
+        removal_date=clean_date(removal_date)
+
+        #make changes
         upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
         print('removal: {}, new schedule: {}'.format(removal_name,upcoming))
 
+    #same for manual allocations
+    allocation_name=None
+    allocation_role=None
+    allocation_date=None
+    if allocation_name is not None:
+
+        #ensure formatting
+        check_member(allocation_name,people)
+        allocation_role=check_role(allocation_role)
+        allocation_date=clean_date(allocation_date)
+
         upcoming=manual_role_allocation(upcoming,allocation_name,removal_role,removal_date)
-        print('manual allocation: {}, new schedule: {}'.format((allocation_name,removal_role,removal_date),upcoming))
+        print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),upcoming))
 
         #save the updated provisionals
         save_updated_provisionals(root_path,upcoming,'group')
 
-    return(final)
+    return(upcoming)
 
 #run the main function
 if __name__ == "__main__":

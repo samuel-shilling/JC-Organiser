@@ -174,6 +174,7 @@ def generate_and_save_provisional(provisional_full, days_since_last_role, target
 #remove manually specified people (for their role and date) from the provisional schedule 
 def make_removals(provisional_full,name,role,date):
 
+
     #date needs to be in pd.Timestamp formats
 
     #just slice the dataframe to exclude where the person is selected on which date for which role

@@ -121,23 +121,22 @@ def randomly_select_people_dates_and_roles_for_testing_revisions(upcoming,people
     return(removal_name,removal_role,removal_date,allocation_name)
 
 
-# import difflib
-# def clean_date(date):
-#     try:
-#         return pd.Timestamp(date).normalize()
-#     except Exception:
-#         raise ValueError("'{}' is not a valid date (use YYYY-MM-DD).".format(date))
+def clean_date(date):
+    try:
+        return pd.Timestamp(date).normalize()
+    except Exception:
+        raise ValueError("'{}' is not a valid date (use YYYY-MM-DD).".format(date))
 
-# def check_role(role):
-#     if role not in ROLES:
-#         raise ValueError("Unknown role '{}'. Must be one of {}.".format(role, ROLES))
+def check_role(role):
+    if role not in ROLES:
+        raise ValueError("Unknown role '{}'. Must be one of {}.".format(role, ROLES))
 
-# def check_member(name, people):
-#     if name in people:
-#         return
-#     close = difflib.get_close_matches(name, people, n=3, cutoff=0.6)
-#     hint = " Did you mean: {}?".format(", ".join(close)) if close else ""
-#     raise ValueError("'{}' is not in the JC member list.{}".format(name, hint))
+def check_member(name, people):
+    if name in people:
+        return
+    close = difflib.get_close_matches(name, people, n=3, cutoff=0.6)
+    hint = "Did you mean: {}?".format(", ".join(close)) if close else ""
+    raise ValueError("'{}' is not in the JC member list.{}".format(name, hint))
 
 # #outdated- simulate dummy data
 #if dummy, generate the data
