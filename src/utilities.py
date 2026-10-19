@@ -112,11 +112,12 @@ def compute_statistics(history, people,ROLES):
     return(results)
 
 
-def randomly_select_people_dates_and_roles_for_testing_revisions(df_updated_provisional,people):
-    removal_info=df_updated_provisional.sample()
+def randomly_select_people_dates_and_roles_for_testing_revisions(upcoming,people):
+    removal_info=upcoming.sample()
     removal_name,removal_role,removal_date=removal_info['name'].unique()[0],removal_info['role'].unique()[0],removal_info['date'].unique()[0]
 
-    allocation_name=np.random.choice(np.setdiff1d(people,df_updated_provisional['name'].unique()))
+    #just randomly a replacement for that role (this will be handled manually in the real workflow)
+    allocation_name=np.random.choice(np.setdiff1d(people,upcoming['name'].unique()))
     return(removal_name,removal_role,removal_date,allocation_name)
 
 

@@ -42,18 +42,19 @@ target_dates=get_target_month_dates(JC_DAYS, pd.Timestamp.today().normalize())
 upcoming,bool=generate_and_save_provisional(upcoming, days_since_last_role, target_dates, ROLES, NUM_OF_SPEAKERS, WHICH)
 print('\n newly generated upcoming:',upcoming) if bool==True else print('\n no new provisional generated')
 
+#not needed in real workflow: test removals and manual allocations (using hard coded random selections for testing purposes)
+removal_name,removal_role,removal_date,allocation_name=randomly_select_people_dates_and_roles_for_testing_revisions(upcoming,people)
 
-# #test removals and manual allocations (using hard coded random selections for testing purposes)
-# removal_name,removal_role,removal_date,allocation_name=randomly_select_people_dates_and_roles_for_testing_revisions(df_updated_provisional,people)
-# if removal_name is not None and allocation_name is not None:
-#     df_updated_provisional=make_removals(df_updated_provisional,removal_name,removal_role,removal_date)
-#     print('removal: {}, new schedule: {}'.format(removal_name,df_updated_provisional))
+#make removals and allocations
+if removal_name is not None and allocation_name is not None:
+    upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
+    print('removal: {}, new schedule: {}'.format(removal_name,upcoming))
 
-#     df_updated_provisional=manual_role_allocation(df_updated_provisional,allocation_name,removal_role,removal_date)
-#     print('manual allocation: {}, new schedule: {}'.format((allocation_name,removal_role,removal_date),df_updated_provisional))
+    upcoming=manual_role_allocation(upcoming,allocation_name,removal_role,removal_date)
+    print('manual allocation: {}, new schedule: {}'.format((allocation_name,removal_role,removal_date),upcoming))
 
-#save the updated provisionals
-# save_updated_provisionals(root_path,df_updated_provisional,WHICH)
+    #save the updated provisionals
+    save_updated_provisionals(root_path,upcoming,WHICH)
 
 # #for dates that have passed and been confirmed: update the history (needs to run on a weekly basis)
 # history_updated=save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
