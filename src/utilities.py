@@ -9,16 +9,10 @@ from src.config import *
 
 
 #top level function to retrieve all central data objects
-def data_retrieval(root_path,WHICH,JC_DAYS):
+def data_retrieval(root_path,WHICH):
 
     #test the group directory exists
     ensure_directory_exists(root_path)
-
-    #get the meeting dates for this month
-    meeting_dates_this_month=get_meeting_dates_this_month(JC_DAYS)
-
-    #get the meeting dates for next month
-    meeting_dates_next_month=get_meeting_dates_next_month(JC_DAYS)
 
     #get list of JC members
     people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
@@ -26,68 +20,79 @@ def data_retrieval(root_path,WHICH,JC_DAYS):
     #get speaker history
     history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
 
-    #get statistics
-    days_since_last_role=compute_statistics(history, people, ROLES)
-
-    return(meeting_dates_this_month,meeting_dates_next_month,people,history,days_since_last_role)
+    return(people,history)
 
 
 #check the /data/group/ directory exists as this is ignored in github
 def ensure_directory_exists(path):
     os.makedirs("{}/data/group/".format(path),exist_ok=True)
 
+#get the meeting dates in a target month (could be this month, or next month)
+def get_meeting_dates(JC_DAYS, period):
+    days=pd.date_range(period.start_time, period.end_time, freq='D').normalize()
+    return([d for d in days if d.day_name()==JC_DAYS])
 
-#get the meeting dates this month (writes dates in ISO format)
-def get_meeting_dates_this_month(JC_DAYS):
+#get the target month to generate the next set of JC days over 
+def get_target_month_dates(JC_DAYS, today):
+    #get JC dates for 3 consecutive months, find which month corresponds to the next schedule
+    for offset in range(3):
+        dates = get_meeting_dates(JC_DAYS, today.to_period('M')+offset)
 
-    #get current year and month
-    today=pd.Timestamp.today()
-    year=today.normalize().year
-    month=today.normalize().month
+        #get the dates in the month we do NOT already have a schedule for (where dates[0] is not yet in the past)
+        if dates and dates[0]>=today:
+            return(dates)
 
-    #empty list to save meeting dates to
-    meeting_dates_int=[]
+# #get the meeting dates this month (writes dates in ISO format)
+# def get_meeting_dates_this_month(JC_DAYS):
 
-    #loop through every day this month
-    for day in range(1, calendar.monthrange(year, month)[1]+1):
+#     #get current year and month
+#     today=pd.Timestamp.today()
+#     year=today.normalize().year
+#     month=today.normalize().month
 
-        date=pd.Timestamp(year=year, month=month, day=day)
+#     #empty list to save meeting dates to
+#     meeting_dates_int=[]
 
-        #check if this date is a Thursday (or whichever day is selected for JC)
-        if date.strftime('%A')==JC_DAYS:
-            meeting_dates_int.append(date)
+#     #loop through every day this month
+#     for day in range(1, calendar.monthrange(year, month)[1]+1):
 
-    return(meeting_dates_int)
+#         date=pd.Timestamp(year=year, month=month, day=day)
+
+#         #check if this date is a Thursday (or whichever day is selected for JC)
+#         if date.strftime('%A')==JC_DAYS:
+#             meeting_dates_int.append(date)
+
+#     return(meeting_dates_int)
 
 
-#get the meeting dates this month (writes dates in ISO format)
-def get_meeting_dates_next_month(JC_DAYS):
+# #get the meeting dates this month (writes dates in ISO format)
+# def get_meeting_dates_next_month(JC_DAYS):
 
-    #get current year and month
-    today=pd.Timestamp.today()
-    year=today.normalize().year
-    month=today.normalize().month
+#     #get current year and month
+#     today=pd.Timestamp.today()
+#     year=today.normalize().year
+#     month=today.normalize().month
 
-    if month==12:
-        next_month=1
-        year=year+1
-    else:
-        next_month=month+1
-        year=year
+#     if month==12:
+#         next_month=1
+#         year=year+1
+#     else:
+#         next_month=month+1
+#         year=year
 
-    #empty list to save meeting dates to
-    meeting_dates_int=[]
+#     #empty list to save meeting dates to
+#     meeting_dates_int=[]
 
-    #loop through every day this month
-    for day in range(1, calendar.monthrange(year, next_month)[1]+1):
+#     #loop through every day this month
+#     for day in range(1, calendar.monthrange(year, next_month)[1]+1):
 
-        date=pd.Timestamp(year=year, month=next_month, day=day)
+#         date=pd.Timestamp(year=year, month=next_month, day=day)
 
-        #check if this date is a Thursday (or whichever day is selected for JC)
-        if date.strftime('%A')==JC_DAYS:
-            meeting_dates_int.append(date)
+#         #check if this date is a Thursday (or whichever day is selected for JC)
+#         if date.strftime('%A')==JC_DAYS:
+#             meeting_dates_int.append(date)
 
-    return(meeting_dates_int)
+#     return(meeting_dates_int)
 
 #get a list of current JC members 
 def get_current_JC_members(path):
