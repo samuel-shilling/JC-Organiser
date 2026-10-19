@@ -183,8 +183,17 @@ def make_removals(provisional_full,name,role,date):
     # print(provisional_full.dtypes)
     # print(provisional_full.assign(n=provisional_full['name']==name,r=provisional_full['role']==role,d=provisional_full['date']==date))
 
+    #mask
+    mask=( (provisional_full['name']==name) &(provisional_full['role']==role) &(provisional_full['date']==date) )
+
+    #check
+    if not mask.any():
+        raise ValueError(f"No entry found for {name} as {role} on {date.date()}")
+
     #just slice the dataframe to exclude where the person is selected on which date for which role
-    revised_provisional_full=provisional_full[~ ( (provisional_full['name']==name) &(provisional_full['role']==role) &(provisional_full['date']==date) )]
+    revised_provisional_full=provisional_full[~mask]
+
+
     
     return(revised_provisional_full)
 

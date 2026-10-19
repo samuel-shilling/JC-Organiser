@@ -12,6 +12,7 @@ from src.utilities import *
 #need to do:
 # need to finish setting up slack bot and do test runs!
 # need to add a function to cancel a JC session
+# need to add a function to help the LLM deduce information (see mac notes)
 # explain in readme.md that JC member list changes must be made directly to the source .csv
 # find out what exactly the .json dumps do, where it goes, what the LLM can do 
 # need to thoroughly docstring the code 
