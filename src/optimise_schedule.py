@@ -9,6 +9,26 @@ from src.utility_functions import *
 from src.config import *
 
 
+#top level function to retrieve all central data objects
+def data_retrieval(root_path,WHICH,JC_DAYS):
+
+    #test the group directory exists
+    ensure_directory_exists(root_path)
+
+    #get the meeting dates for this month
+    meeting_dates=get_meeting_dates_this_month(JC_DAYS)
+
+    #get list of JC members
+    people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
+
+    #get speaker history
+    history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
+
+    #get statistics
+    days_since_last_role=compute_statistics(history, people, ROLES)
+
+    return(meeting_dates,people,history,days_since_last_role)
+
 
 #get a dataframe containing the number of days since each person has last done each role
 def compute_statistics(history, people,ROLES):
@@ -60,10 +80,8 @@ def compute_statistics(history, people,ROLES):
 
 
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
-def optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
+def optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH):
 
-    #get the meeting dates for this month
-    meeting_dates=get_meeting_dates_this_month(JC_DAYS)
 
     #empty lists for the selections to be saved to
     allocations=[]
@@ -119,8 +137,8 @@ def optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_
 # #swaps should be between two people in one month, or between 
 # def make_revisions_to_schedule(swappage,root_path,path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
-#     #get the provisional schedule
-#     provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
+    # #get the provisional schedule
+    # provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
 
 #     #check if the provisional file for this month exists (the read in and process function returns an empty df if the provisional is for a previous month)
 #     if len(provisional)==0:

@@ -48,7 +48,7 @@ def get_meeting_dates_this_month(JC_DAYS):
     #loop through every day this month
     for day in range(1, calendar.monthrange(year, month)[1]+1):
 
-        date = dt.date(year, month, day)
+        date=pd.Timestamp(year=year, month=month, day=day)
 
         #check if this date is a Thursday (or whichever day is selected for JC)
         if date.strftime('%A')==JC_DAYS:
@@ -57,11 +57,14 @@ def get_meeting_dates_this_month(JC_DAYS):
     return(meeting_dates_int)
 
 
-
 #retrieve the provisional schedule for this month and process if it is for this month or not
-def get_and_process_provisional_schedule(path):
+def get_provisional_schedule(root_path,dates_this_month,WHICH):
+
+    #set local path
+    path="{}/data/{}/{}_provisional.csv".format(root_path, WHICH, WHICH)
+
     #get todays date
-    today = pd.Timestamp.today()
+    today = pd.Timestamp.today().normalize()
 
     #read in attempt
     try:
@@ -75,20 +78,58 @@ def get_and_process_provisional_schedule(path):
 
     #set boolean to flag if the provisional dates are for the current month or not
     current_month_exists=False
-    for date in dates:
+    for date in dates_this_month:
         if date.year==today.year and date.month==today.month:
             current_month_exists=True
             break
-
-    #If no dates match, empty the dataframe
+        
+    #If no dates match at all, then we schedule doesnt exist yet (need to run main.py first)
     if not current_month_exists:
-        df=df.iloc[0:0].copy()
+        # df=df.iloc[0:0].copy()
+        raise ValueError('Cannot make revisions to a schedule that does not exist, let the schedule be determined first')
 
     return(df)
+
+def filter_provisional_schedule(df,dates_this_month):
+
+    #get todays date
+    today = pd.Timestamp.today().normalize()
+
+    #get the dates remaining this month
+    remaining_dates=[d for d in dates_this_month if d>=today]
+
+    #reduce provisional schedule to only contain future dates
+    df_historical=df[~df['date'].isin(remaining_dates)]
+    df_remaining=df[df['date'].isin(remaining_dates)]
+
+    return(df_historical,df_remaining)
+
+
+def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_this_month,WHICH):
+
+    #filter privisional to get the confirmed dates and the remaining provisional dates (not needed here)
+    confirmed_provisional_dates,_=filter_provisional_schedule(provisional,dates_this_month)
+
+    #save the confirmed provisional dates to history
+    history_updated=pd.concat([history,confirmed_provisional_dates])
+
+    #save updated history
+    history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+
+    #return
+    return(history_updated)
+
+
+
+
+
 
 
 
 # #outdated- simulate dummy data
+#if dummy, generate the data
+# if WHICH!='group':
+#     generate_dummy_data(root_path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS)
 # def generate_dummy_data(path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS):
 #     """Writes data/history.csv in the same format the real monthly file will use:
 

@@ -9,49 +9,33 @@ from src.optimise_schedule import *
 from src.config import *
 from src.utility_functions import *
 
+#need to do:
+# add name typo detection
+# test for list of JC members and raise error if it doesnt exist
+# test what happens if there is no speaker history
+
+
 #which test to run? enter 'group' or 'dummy'
 WHICH='group'
 
-#test the group directory exists
-ensure_directory_exists(root_path)
-
-#need to add name typo detection
+#get core data objects
+meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
 
 
-#need to simulate future months (IF THERE ARE LESS THAN 6 MONTHS)
+#try for an existing provisional schedule, if it doesnt exist (for this month) generate a new one
+try:
+    provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)
+except:
+    provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH)
+print(provisional_full)
 
+#update the history
+save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
 
-#if dummy, generate the data
-if WHICH!='group':
-    generate_dummy_data(root_path,SPEAKERS_PER_SESSION,JC_DAYS,COLUMNS,ROLES,NUM_OF_SPEAKERS)
-
-#need to test for list of JC members and raise error if it doesnt exist
-
-
-#get list of JC members
-people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,WHICH,WHICH))
-
-
-#need to test what happens if there is no speaker history
-
-
-#read in speaker histories
-history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
-
-#get the meeting dates this month
-meeting_dates_int=get_meeting_dates_this_month(JC_DAYS)
-
-#get statistics
-days_since_last_role=compute_statistics(history, people, ROLES)
-
-#optimise allocations
-final=optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH)
-
-#print
-print(final)
 
 #make revisions
 # provisional=get_provisional_schedule(path)
+
 
 
 
