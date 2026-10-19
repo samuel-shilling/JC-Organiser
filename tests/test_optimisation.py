@@ -21,7 +21,6 @@ WHICH='group'
 #get core data objects
 meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
 
-
 #try for an existing provisional schedule, if it doesnt exist (for this month) generate a new one
 try:
     provisional_full=get_provisional_schedule(root_path,meeting_dates,WHICH)
@@ -29,12 +28,12 @@ except:
     provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH)
 print(provisional_full)
 
-#update the history
-save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
-
-
 #make revisions
-# provisional=get_provisional_schedule(path)
+revised_provisional_full=get_provisional_schedule(path)
+
+#update the history
+history_updated=save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
+
 
 
 

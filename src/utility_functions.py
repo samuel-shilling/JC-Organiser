@@ -120,9 +120,31 @@ def save_confirmed_provisionals_to_history(root_path,provisional,history,dates_t
     return(history_updated)
 
 
+#can handle the revisions here
+def make_removals(provisional_full,path,name,role,date,WHICH):
+
+    #date needs to be in pd.Timestamp formats
+
+    #just slice the dataframe to exclude where the person is selected on which date for which role
+    revised_provisional_full=provisional_full[(provisional_full['name']==name) & (provisional_full['role']==role) & (provisional_full['date']==date)]
+
+    #save the provisional allocations
+    revised_provisional_full['date']=pd.to_datetime(results['date'])
+    revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+
+    return(revised_provisional_full)
 
 
+def manual_role_allocation(provisional_full,path,name,role,date,WHICH):
 
+    #just slice the dataframe to exclude where the person is selected on which date for which role
+    revised_provisional_full=
+
+    #save the provisional allocations
+    revised_provisional_full['date']=pd.to_datetime(results['date'])
+    revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
+
+    return()
 
 
 

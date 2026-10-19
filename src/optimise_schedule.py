@@ -134,17 +134,7 @@ def optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, N
 
     return(results)
 
-# #swaps should be between two people in one month, or between 
-# def make_revisions_to_schedule(swappage,root_path,path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,WHICH):
 
-    # #get the provisional schedule
-    # provisional=get_and_process_provisional_schedule("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH))
-
-#     #check if the provisional file for this month exists (the read in and process function returns an empty df if the provisional is for a previous month)
-#     if len(provisional)==0:
-#         raise ValueError('Problem! Cannot make revisions as there is no provisional schedule for this month')
-
-#     #only works for manual swappages for now
 
 
 
