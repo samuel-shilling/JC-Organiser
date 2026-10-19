@@ -21,6 +21,7 @@ def data_retrieval(root_path,WHICH):
     history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,WHICH,WHICH))
 
     return(people,history)
+    
 
 
 #check the /data/group/ directory exists as this is ignored in github
@@ -42,57 +43,6 @@ def get_target_month_dates(JC_DAYS, today):
         if dates and dates[0]>=today:
             return(dates)
 
-# #get the meeting dates this month (writes dates in ISO format)
-# def get_meeting_dates_this_month(JC_DAYS):
-
-#     #get current year and month
-#     today=pd.Timestamp.today()
-#     year=today.normalize().year
-#     month=today.normalize().month
-
-#     #empty list to save meeting dates to
-#     meeting_dates_int=[]
-
-#     #loop through every day this month
-#     for day in range(1, calendar.monthrange(year, month)[1]+1):
-
-#         date=pd.Timestamp(year=year, month=month, day=day)
-
-#         #check if this date is a Thursday (or whichever day is selected for JC)
-#         if date.strftime('%A')==JC_DAYS:
-#             meeting_dates_int.append(date)
-
-#     return(meeting_dates_int)
-
-
-# #get the meeting dates this month (writes dates in ISO format)
-# def get_meeting_dates_next_month(JC_DAYS):
-
-#     #get current year and month
-#     today=pd.Timestamp.today()
-#     year=today.normalize().year
-#     month=today.normalize().month
-
-#     if month==12:
-#         next_month=1
-#         year=year+1
-#     else:
-#         next_month=month+1
-#         year=year
-
-#     #empty list to save meeting dates to
-#     meeting_dates_int=[]
-
-#     #loop through every day this month
-#     for day in range(1, calendar.monthrange(year, next_month)[1]+1):
-
-#         date=pd.Timestamp(year=year, month=next_month, day=day)
-
-#         #check if this date is a Thursday (or whichever day is selected for JC)
-#         if date.strftime('%A')==JC_DAYS:
-#             meeting_dates_int.append(date)
-
-#     return(meeting_dates_int)
 
 #get a list of current JC members 
 def get_current_JC_members(path):
@@ -168,6 +118,25 @@ def randomly_select_people_dates_and_roles_for_testing_revisions(df_updated_prov
 
     allocation_name=np.random.choice(np.setdiff1d(people,df_updated_provisional['name'].unique()))
     return(removal_name,removal_role,removal_date,allocation_name)
+
+
+# import difflib
+# def clean_date(date):
+#     try:
+#         return pd.Timestamp(date).normalize()
+#     except Exception:
+#         raise ValueError("'{}' is not a valid date (use YYYY-MM-DD).".format(date))
+
+# def check_role(role):
+#     if role not in ROLES:
+#         raise ValueError("Unknown role '{}'. Must be one of {}.".format(role, ROLES))
+
+# def check_member(name, people):
+#     if name in people:
+#         return
+#     close = difflib.get_close_matches(name, people, n=3, cutoff=0.6)
+#     hint = " Did you mean: {}?".format(", ".join(close)) if close else ""
+#     raise ValueError("'{}' is not in the JC member list.{}".format(name, hint))
 
 # #outdated- simulate dummy data
 #if dummy, generate the data

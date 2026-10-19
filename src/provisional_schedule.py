@@ -59,13 +59,13 @@ def filter_provisional_schedule(provisional):
     return(confirmed, upcoming)
 
 #run daily to save confirmed provisionals to history file
-def save_confirmed_provisionals_to_history(root_path,df_confirmed_current_month,history,WHICH):
+def save_confirmed_provisionals_to_history(root_path,confirmed,history,WHICH):
 
     #only select provisional dates that have not already been saved (there should be none)
-    unsaved_dates=np.setdiff1d(df_confirmed_current_month['date'].unique(),history['date'].unique())
+    unsaved_dates=np.setdiff1d(confirmed['date'].unique(),history['date'].unique())
 
     #select confirmed dates for merging
-    for_merging=df_confirmed_current_month[df_confirmed_current_month['date'].isin(unsaved_dates)]
+    for_merging=confirmed[confirmed['date'].isin(unsaved_dates)]
 
     #merge if there are dates, if not then the history is already up to date
     if len(for_merging)>0:

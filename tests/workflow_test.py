@@ -27,7 +27,6 @@ print('\n full provisional:',provisional)
 
 #separate into past (confirmed) and future (upcoming) dates
 confirmed,upcoming=filter_provisional_schedule(provisional)
-print('\n confirmed so far:',upcoming)
 print('\n upcoming:',upcoming)
 
 #save the confirmed dates (past dates) to history
