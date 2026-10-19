@@ -56,6 +56,35 @@ def get_meeting_dates_this_month(JC_DAYS):
 
     return(meeting_dates_int)
 
+#get the meeting dates this month (writes dates in ISO format)
+def get_meeting_dates_next_month(JC_DAYS):
+
+    #get current year and month
+    today=pd.Timestamp.today()
+    year=today.normalize().year
+    month=today.normalize().month
+
+    if month==12:
+        next_month=1
+        year=year+1
+    else:
+        next_month=month+1
+        year=year
+
+    #empty list to save meeting dates to
+    meeting_dates_int=[]
+
+    #loop through every day this month
+    for day in range(1, calendar.monthrange(year, next_month)[1]+1):
+
+        date=pd.Timestamp(year=year, month=next_month, day=day)
+
+        #check if this date is a Thursday (or whichever day is selected for JC)
+        if date.strftime('%A')==JC_DAYS:
+            meeting_dates_int.append(date)
+
+    return(meeting_dates_int)
+
 
 #retrieve the provisional schedule for this month and process if it is for this month or not
 def get_provisional_schedule(root_path,dates_this_month,WHICH):
