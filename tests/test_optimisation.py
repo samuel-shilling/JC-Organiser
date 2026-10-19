@@ -16,7 +16,7 @@ from src.utility_functions import *
 
 
 #which test to run? enter 'group' or 'dummy'
-WHICH='dummy'
+WHICH='group'
 
 #get core data objects
 meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,WHICH,JC_DAYS)
