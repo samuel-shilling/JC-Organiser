@@ -126,10 +126,10 @@ def make_removals(provisional_full,path,name,role,date,WHICH):
     #date needs to be in pd.Timestamp formats
 
     #just slice the dataframe to exclude where the person is selected on which date for which role
-    revised_provisional_full=provisional_full[(provisional_full['name']==name) & (provisional_full['role']==role) & (provisional_full['date']==date)]
+    revised_provisional_full=provisional_full[~ ( (provisional_full['name']==name) &(provisional_full['role']==role) &(provisional_full['date']==date) )]
 
     #save the provisional allocations
-    revised_provisional_full['date']=pd.to_datetime(results['date'])
+    revised_provisional_full['date']=pd.to_datetime(revised_provisional_full['date'])
     revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
 
     return(revised_provisional_full)
@@ -141,13 +141,16 @@ def manual_role_allocation(provisional_full,path,name,role,date,WHICH):
     new_row={'name':name,'role':role,'date':date}
 
     #merge the new allocation
-    revised_provisional_full=pd.concat([provisional_full,new_row],ignore_index=True)
+    revised_provisional_full=pd.concat([provisional_full,pd.DataFrame([new_row])],ignore_index=True)
+
+    #sort by date
+    revised_provisional_full = revised_provisional_full.sort_values(by='date').reset_index(drop=True)
 
     #save the provisional allocations
-    revised_provisional_full['date']=pd.to_datetime(results['date'])
+    revised_provisional_full['date']=pd.to_datetime(revised_provisional_full['date'])
     revised_provisional_full.to_csv("{}/data/{}/{}_provisional.csv".format(path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
 
-    return()
+    return(revised_provisional_full)
 
 
 

@@ -28,14 +28,22 @@ except:
     provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,WHICH)
 print(provisional_full)
 
-#make revisions
-revised_provisional_full=get_provisional_schedule(path)
+#make revisions (for removals) 
+removal_info=provisional_full.sample()
+removal_name,removal_role,removal_date=removal_info['name'].unique()[0],removal_info['role'].unique()[0],removal_info['date'].unique()[0]
+if removal_name!=None:
+    revised_provisional_full=make_removals(provisional_full,root_path,removal_name,removal_role,removal_date,WHICH)
+print('removal: {}, new schedule: {}'.format(removal_info,revised_provisional_full))
 
-#update the history
+#make revisions (for manual allocations)
+allocation_name=np.random.choice(np.setdiff1d(people,revised_provisional_full['name'].unique()))
+allocation_role,allocation_date=removal_role,removal_date
+if allocation_name!=None:
+    revised_provisional_full=manual_role_allocation(revised_provisional_full,root_path,allocation_name,allocation_role,allocation_date,WHICH)
+print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),revised_provisional_full))
+
+#for dates that have passed and been confirmed: update the history (needs to run on a weekly basis)
 history_updated=save_confirmed_provisionals_to_history(root_path,provisional_full,history,meeting_dates,WHICH)
 
 
 
-
-
-#if someone needs to reschedule then make sure the function does not overwrite allocations for previous meeting dates in this month which have already passed!
