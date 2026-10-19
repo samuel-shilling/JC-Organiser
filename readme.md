@@ -61,7 +61,8 @@ python --version
 cp .env.example .env
 ```
 
-5. Separately install Ollama (open source LLM) to locally host the LLM interface (see https://docs.ollama.com/quickstart)
+5. Separately install Ollama (open source LLM) to locally host the LLM interface 
+- I have provided a summary of instructions for macOS/Linux below (otherwise see https://docs.ollama.com/quickstart)
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull gemma4:e2b
@@ -97,8 +98,7 @@ YYYY-MM-DD,     Forename2 Surname2, Example_role
 
 9. Test local run
 ```bash
-python -m src.llm_interface
-ollama pull gemma4:e2b
+python -m src.main
 ```
 
 10. Setup Slack bot
