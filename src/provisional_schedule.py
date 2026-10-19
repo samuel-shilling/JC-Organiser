@@ -61,21 +61,27 @@ def filter_provisional_schedule(provisional):
 #run daily to save confirmed provisionals to history file
 def save_confirmed_provisionals_to_history(root_path,confirmed,history,WHICH):
 
-    #only select provisional dates that have not already been saved (there should be none)
-    unsaved_dates=np.setdiff1d(confirmed['date'].unique(),history['date'].unique())
+    #ensure consistent date formats (to be safe)
+    confirmed['date']=pd.to_datetime(confirmed['date']).dt.normalize()
+    history['date']=pd.to_datetime(history['date']).dt.normalize()
 
-    #select confirmed dates for merging
-    for_merging=confirmed[confirmed['date'].isin(unsaved_dates)]
+    #Start with the existing history
+    history_updated = history.copy()
+
+    #loop through each confirmed row, if any is NOT in history, append it!
+    confirm_merge=False
+    for _, row in confirmed.iterrows():
+        exists = ( (history_updated['date'] == row['date']) &(history_updated['name'] == row['name']) & (history_updated['role'] == row['role'])).any()
+        if not exists:
+            history_updated.loc[len(history_updated)] = row 
+            confirm_merge=True
 
     #merge if there are dates, if not then the history is already up to date
-    if len(for_merging)>0:
-        #save the confirmed provisional dates to history
-        history_updated=pd.concat([history,for_merging],ignore_index=True)
-
+    if confirm_merge:
         #save updated history
         history_updated.to_csv("{}/data/{}/{}_history.csv".format(root_path, WHICH, WHICH), index=False, date_format='%Y-%m-%d')
     else:
-        history_updated=history.copy()
+        pass
 
     #return
     return(history_updated)
