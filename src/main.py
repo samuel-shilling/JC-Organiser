@@ -70,7 +70,7 @@ def main_revisions_removal(removal_name,removal_role,removal_date):
     return(upcoming)
 
 #main function for adding people from the schedule if they volunteer to take a role on a date
-def main_revisions_removal(allocation_name,allocation_role,allocation_date):
+def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
 
     #get core data objects
     people,_=data_retrieval(root_path,'group')

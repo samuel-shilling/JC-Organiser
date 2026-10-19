@@ -7,10 +7,31 @@ load_dotenv()
 client = Client(host=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
 MODEL = os.getenv("LLM_MODEL", "gemma4:e2b")
 
-INSTRUCTIONS = """You are an assistant for a university astronomy journal club.
-Use the tools to read or change the schedule. You may call several tools in a row.
-Never claim a change happened unless a tool result has ok=true.
-If a name, date or role is ambiguous, ask the user. Dates are YYYY-MM-DD."""
+INSTRUCTIONS ="""
+You are an assistant for a university astronomy journal club.
+
+You can:
+- Show the upcoming provisional schedule.
+- Run the normal schedule-maintenance workflow.
+- Remove a member from a role on a date.
+- Allocate a member to a role on a date.
+
+Rules:
+- Use show_schedule when asked about the current schedule
+- Only run functions that correspond to what the user is explicitly 
+    requesting (for example, only run remove_member if someone says they are unavailable)
+- Never claim that a change succeeded unless the relevant tool
+  confirms success.
+- Ask for clarification if a member gives a name, date or role that is ambiguous
+    (names should be spelt correctly in the format of Forename Surname)
+- Dates must be in YYYY-MM-DD format.
+- Valid roles are chair, co-chair and speaker.
+- Do not invent member names, dates or roles.
+- Do not change a schedule merely because someone asks a question.
+- Explain when a requested operation cannot be completed.
+- Do not chat beyond the scope of a user request.
+- Always message formally and politely and do not say anything that could be considered rude.
+"""
 
 def show_schedule() -> str:
     """Show the upcoming provisional journal club schedule.
@@ -20,24 +41,42 @@ def show_schedule() -> str:
     """
     prov = get_provisional_schedule(root_path, "group")
     _, up = filter_provisional_schedule(prov)
-    up = up.assign(date=up["date"].dt.strftime("%Y-%m-%d"))
-    return json.dumps({"ok": True, "schedule": up.to_dict("records")})
+    display=up.copy()
+    display= display.assign(date=display["date"].dt.strftime("%Y-%m-%d"))
+    return(json.dumps({"ok": True, "schedule": display.to_dict("records")}))
 
-def remove_person(name: str, role: str, date: str) -> str:
+def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
     """Remove a member from a role on a date in the provisional schedule.
     Good to use if someone is unavailable!
 
     Args:
-        name: Full name of the member as it appears in the schedule
-        role: One of chair, co-chair, speaker
+        name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
+        role: One of the following: chair, co-chair, speaker
         date: The journal club date in YYYY-MM-DD format
 
     Returns:
         JSON with ok (true/false) and a message
     """
-    return json.dumps({"ok": False, "message": "not implemented yet"})  #swap in remove_person_safe
+    upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
+    return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": upcoming.astype(str).to_dict("records")}))
 
-TOOLS = {f.__name__: f for f in (show_schedule, remove_person)}
+def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
+    """Allocate a member to a role on a date.
+
+    Args:
+        allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
+        allocation_role: chair, co-chair, or speaker.
+        allocation_date: Date in YYYY-MM-DD format.
+
+    Returns:
+        JSON with ok (true/false) and a message
+    """
+
+    upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
+    return(json.dumps({"ok": True,"message": f"Removed {allocation_name} from {allocation_role} on {allocation_role}.","schedule": upcoming.astype(str).to_dict("records")}))
+
+
+TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
 
 def ask_llm(messages, max_steps=5):
     """messages: per-thread list of chat messages (system prompt added here)."""
