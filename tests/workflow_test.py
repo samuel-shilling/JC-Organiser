@@ -10,9 +10,11 @@ from src.config import *
 from src.utilities import *
 
 #need to do:
-# add name typo detection (in revision functions)
 # need to add a function to cancel a JC session
-# need to write clear setup instructions
+# need to finish setting up slack bot and do test runs!
+# need to thoroughly docstring the code
+# how to get the script to automatically run once daily (and generate next schedule if needed)
+
 
 
 #which test to run? enter 'group' or 'dummy'
