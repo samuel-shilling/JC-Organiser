@@ -34,8 +34,8 @@ def main():
 
     #pick a chair, co-chair, and speakers for every JC date in the next schedule based on the fairest allocation (longest number of days since last time)
     #note, this is conditional! It will not generate a schedule unless we are within 5 days of the first scheduled JC, and if this schedule does not already exist (from a previous run for instance)
-    upcoming,bool=generate_and_save_provisional(upcoming, days_since_last_role, target_dates, ROLES, NUM_OF_SPEAKERS, 'group')
-    print('\n newly generated upcoming:',upcoming) if bool==True else print('\n no new provisional generated')
+    upcoming,executed=generate_and_save_provisional(upcoming, days_since_last_role, target_dates, ROLES, NUM_OF_SPEAKERS, 'group')
+    print('\n newly generated upcoming:',upcoming) if executed==True else print('\n no new provisional generated')
 
     #save the updated provisional schedule
     save_updated_provisionals(root_path,upcoming,'group')

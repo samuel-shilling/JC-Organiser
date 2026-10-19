@@ -68,12 +68,12 @@ def save_confirmed_provisionals_to_history(root_path,confirmed,history,WHICH):
     #Start with the existing history
     history_updated = history.copy()
 
-    #loop through each confirmed row, if any is NOT in history, append it!
+    #loop through each confirmed row, if any is NOT in history, append it (use a boolean to indicate if we need to save the results)
     confirm_merge=False
     for _, row in confirmed.iterrows():
-        exists = ( (history_updated['date'] == row['date']) &(history_updated['name'] == row['name']) & (history_updated['role'] == row['role'])).any()
+        exists=( (history_updated['date']==row['date']) &(history_updated['name']==row['name']) & (history_updated['role']==row['role']) ).any()
         if not exists:
-            history_updated.loc[len(history_updated)] = row 
+            history_updated.loc[len(history_updated)]=row 
             confirm_merge=True
 
     #merge if there are dates, if not then the history is already up to date
