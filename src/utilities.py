@@ -130,6 +130,7 @@ def clean_date(date):
 def check_role(role):
     if role not in ROLES:
         raise ValueError("Unknown role '{}'. Must be one of {}.".format(role, ROLES))
+    return(role)
 
 def check_member(name, people):
     if name in people:

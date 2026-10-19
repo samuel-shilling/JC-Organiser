@@ -176,10 +176,16 @@ def make_removals(provisional_full,name,role,date):
 
 
     #date needs to be in pd.Timestamp formats
+    date=pd.Timestamp(date).normalize()
+
+    # #temp
+    # print(repr(name), repr(role), repr(date), type(date))
+    # print(provisional_full.dtypes)
+    # print(provisional_full.assign(n=provisional_full['name']==name,r=provisional_full['role']==role,d=provisional_full['date']==date))
 
     #just slice the dataframe to exclude where the person is selected on which date for which role
     revised_provisional_full=provisional_full[~ ( (provisional_full['name']==name) &(provisional_full['role']==role) &(provisional_full['date']==date) )]
-
+    
     return(revised_provisional_full)
 
 #manually allocate people to the provisional schedule (need to manually specify person, role, date)

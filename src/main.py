@@ -67,6 +67,16 @@ def main_revisions_removal(removal_name,removal_role,removal_date):
     #save the updated provisionals
     save_updated_provisionals(root_path,upcoming,'group')
 
+
+    print("Saving to:", root_path / "data" / "group" / "group_provisional.csv")
+    print("Schedule after removal:")
+    print(upcoming)
+
+    save_updated_provisionals(root_path, upcoming, 'group')
+
+    print("Schedule read back from file:")
+    print(get_provisional_schedule(root_path, 'group'))
+
     return(upcoming)
 
 #main function for adding people from the schedule if they volunteer to take a role on a date
@@ -83,8 +93,8 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
 
     #ensure correct format
     check_member(allocation_name,people)
-    removal_role=check_role(allocation_role)
-    removal_date=clean_date(allocation_date)
+    allocation_role=check_role(allocation_role)
+    allocation_date=clean_date(allocation_date)
 
     #make changes
     upcoming=manual_role_allocation(upcoming,allocation_name,allocation_role,allocation_date)

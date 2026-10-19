@@ -1,7 +1,14 @@
-import os, json
-from dotenv import load_dotenv
-from ollama import Client
-from src.provisional_schedule import * 
+#set root
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+root_path=Path(__file__).parent.resolve().parents[0]
+
+#imports
+from src.provisional_schedule import *
+from src.utilities import *
+from src.config import *
+from src.main import *
 
 load_dotenv()
 client = Client(host=os.getenv("OLLAMA_HOST", "http://localhost:11434"))
@@ -31,6 +38,23 @@ Rules:
 - Explain when a requested operation cannot be completed.
 - Do not chat beyond the scope of a user request.
 - Always message formally and politely and do not say anything that could be considered rude.
+
+Additional instructions pertaining to information you have access to:
+- Keep track of names, dates, and roles confirmed earlier in the conversation.
+- If the user provides a date such as "1st, 2nd, 3rd, 4th, etc.", resolve it using the schedule
+  and the conversation context (for example, if the schedule dates are in October then the 8th must be 2026-10-8)
+- Once the name, role and date are known unambiguously, call the relevant
+  tool without asking the user to repeat those details.
+- Ensure all dates to YYYY-MM-DD before calling a tool.
+- Do not ask the user to reconfirm a date, or a role, that has already been established.
+- When show_schedule returns a schedule, display the actual dates, names and
+  roles from its result in the exact same format that the function returns it in.
+- Never say you have shown or updated something without including the
+  relevant information (the show_schedule output) in your response.
+- Treat tool results as the source of truth. Do not invent or omit schedule entries.
+
+Instructions pertaining to asking for clarification:
+- Always try to deduce what name, role, and date, a user is referring to based on the information you have available
 """
 
 def show_schedule() -> str:
@@ -50,9 +74,9 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
     Good to use if someone is unavailable!
 
     Args:
-        name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        role: One of the following: chair, co-chair, speaker
-        date: The journal club date in YYYY-MM-DD format
+        removal_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
+        removal_role: One of the following: chair, co-chair, speaker
+        removal_date: The journal club date in YYYY-MM-DD format
 
     Returns:
         JSON with ok (true/false) and a message
@@ -73,7 +97,7 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
     """
 
     upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
-    return(json.dumps({"ok": True,"message": f"Removed {allocation_name} from {allocation_role} on {allocation_role}.","schedule": upcoming.astype(str).to_dict("records")}))
+    return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": upcoming.astype(str).to_dict("records")}))
 
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
