@@ -10,9 +10,9 @@ from src.config import *
 from src.utilities import *
 
 #need to do:
-# add name typo detection
-# test for list of JC members and raise error if it doesnt exist
-# test what happens if there is no speaker history
+# add name typo detection (in revision functions)
+# need to add a function to cancel a JC session
+# need to write clear setup instructions
 
 
 #which test to run? enter 'group' or 'dummy'
