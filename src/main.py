@@ -12,21 +12,15 @@ from src.config import *
 #main function
 def main():
 
-    #test the group directory exists
-    ensure_directory_exists(root_path)
+    #get core data objects
+    meeting_dates,people,history,days_since_last_role=data_retrieval(root_path,'group',JC_DAYS)
 
-    #get list of JC members
-    people=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,'group','group'))
-
-    #read in speaker histories
-    history=get_speaker_histories('{}/data/{}/{}_history.csv'.format(root_path,'group','group'))
-
-    #get statistics
-    days_since_last_role=compute_statistics(history, people, ROLES)
-
-    #optimise allocations
-    final=optimise_allocations(root_path,days_since_last_role, JC_DAYS, ROLES, NUM_OF_SPEAKERS,'group')
-    print(final)
+    #try to read an existing provisional schedule (for this month), if it doesnt exist (for this month) generate a new one
+    try:
+        provisional_full=get_provisional_schedule(root_path,meeting_dates,'group')
+    except:
+        provisional_full=optimise_allocations(root_path,days_since_last_role, meeting_dates, ROLES, NUM_OF_SPEAKERS,'group')
+    print(provisional_full)
 
     prompt = f'''
     This needs to be a prompt for the LLM to use to communicate between the algorithm (above code) and the group (it needs to send the algorithm output, re-run the code based on people in the group saying they are not available, add and remove people from the current JC member list)
