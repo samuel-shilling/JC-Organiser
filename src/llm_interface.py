@@ -26,7 +26,7 @@ You can:
 Rules:
 - Use show_schedule when asked about the current schedule
 - Only run functions that correspond to what the user is explicitly 
-    requesting (for example, only run remove_member if someone says they are unavailable)
+    requesting (for example, only run remove_person if someone says they are unavailable)
 - Never claim that a change succeeded unless the relevant tool
   confirms success.
 - Ask for clarification if a member gives a name, date or role that is ambiguous
