@@ -139,6 +139,34 @@ def check_member(name, people):
     hint = "Did you mean: {}?".format(", ".join(close)) if close else ""
     raise ValueError("'{}' is not in the JC member list.{}".format(name, hint))
 
+#Convert a dataframe output into a nicely formatted slack message
+def format_schedule(df, title="*Upcoming journal club schedule:*"):
+    """Turn a schedule dataframe (date, name, role) into a readable Slack message."""
+    if df.empty:
+        return "No upcoming journal club sessions are scheduled yet."
+    lines = [title]
+
+    #if chair or co-chair are present in df then format these first and then remove from df
+    if 'chair' in df['role'].unique() and 'co-chair' in df['role'].unique():
+
+        #select them
+        chairs = df[df['role'].isin(['chair', 'co-chair'])]
+
+        #format
+        for date, group in chairs.groupby("date"):
+            month=pd.to_datetime(date).strftime("%B")
+            people = ", ".join(f"{r['name']} ({r['role']})" for _, r in group.iterrows())
+            lines.append(f"- {month}: {people}")
+        
+        #Exclude chairs and co-chairs from the remaining dataframe
+        df = df[~df['role'].isin(['chair', 'co-chair'])]
+
+    #print the rest of the schedule
+    for date, group in df.groupby("date"):
+        people = ", ".join(f"{r['name']} ({r['role']})" for _, r in group.iterrows())
+        lines.append(f"- {pd.to_datetime(date):%Y-%m-%d}: {people}")
+    return "\n".join(lines)
+
 # #outdated- simulate dummy data
 #if dummy, generate the data
 # if WHICH!='group':

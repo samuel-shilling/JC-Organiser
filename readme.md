@@ -1,15 +1,15 @@
-This project is essentially a Python scheduling algorithm for LU Astro. JC. 
+# Journal Club automatic scheduling algorithm
 
-**Main features**
-1. Deterministically fairly allocate each JC role to each member automatically and generate a rolling schedule
+## Main features
+1. A Python algorithm which fairly and deterministically generates a provisioanl JC schedule each month, removes people from the schedule if unavailable, and allocates people who volunteer (to replace someone who is unavailable for example)
 
-2. Make revisions to the schedule (currently semi-automatic as it requires someone to volunteer to cover if someone else is unavailable)
+2. A wrapper for an LLM which acts as an interface between users (JC members) and the Python algorithm. This interprets users messages and is programmed to run the corresponding function on their behalf
 
-3. Use a separately installed LLM interface (currently tested with Ollama) to liaise between the algorithm and the JC group members
+3. Slack Bot integration which is the medium in which the JC members can interact with the algorithm via the LLM.
 
 
 
-**Installation instructions (including LLM)**
+## Installation instructions (Python algorithm)
 
 1. Clone the github repo to get a local copy 
 ```bash
@@ -35,21 +35,7 @@ python --version
 cp .env.example .env
 ```
 
-5. Separately install Ollama (open source LLM) to locally host the LLM interface 
-- I have provided a summary of instructions for macOS/Linux below (otherwise see https://docs.ollama.com/quickstart)
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull gemma4:e2b
-```
-
-
-6. (optional) Test Ollama
-```bash
-ollama run gemma4:e2b 
-ollama show gemma4:e2b 
-```
-
-7. (skippable if supplied with this data) Create mandatory initial data files (part 1)
+5. (skippable if supplied with this data) Create mandatory initial data files (part 1)
 - Go to JC_Organiser/data/group/ (make the group folder if needed)
 - Make a plain text file called 'group_names.csv' and enter 'name' as the header followed by the JC member names 
 - e.g.:
@@ -57,7 +43,7 @@ name
 Forename1 Surname1
 Forename2 Surname2
 
-8. (skippable if supplied with this data) Create mandatory initial data files (part 2)
+6. (skippable if supplied with this data) Create mandatory initial data files (part 2)
 - Go to JC_Organiser/data/group/ (make the group folder if needed)
 - Make a plain text file called 'group_history.csv' and enter data in the following format:
 ```text
@@ -69,12 +55,28 @@ YYYY-MM-DD,     Forename2 Surname2, Example_role
 - name column entries must match name column entries in group_names.csv
 
 
-9. Run locally
+
+## Installation instructions (LLM interface)
+
+1. Install Ollama (open source LLM) to locally host the LLM interface 
+- I have provided a summary of instructions for macOS/Linux below (otherwise see https://docs.ollama.com/quickstart)
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull gemma4:e2b
+```
+
+2. (optional) Test Ollama
+```bash
+ollama run gemma4:e2b 
+ollama show gemma4:e2b 
+```
+
+3. (optional) Test local run
 ```bash
 python -m src.llm_interface
 ```
 
-**Slack bot setup instructions**
+## Installation instructions (slack bot)
 Note: full instructions at https://docs.slack.dev/tools/bolt-python/creating-an-app/
 
 1. Go to 'build' in the Slack API (https://api.slack.com/apps/) and select 'create new app'
@@ -102,7 +104,7 @@ app_mention
 message.im
 ```
 
-7. Go to 'OAuth and permissions' and select 'reinstall to workspace' and copy the 'Bot user oauth token' beginning with 'xoxb' and add to .venv as follows (**do not share this elsewhere**):
+7. Go to 'OAuth and permissions' and select 'reinstall to workspace' and copy the 'Bot user oauth token' beginning with 'xoxb' and add to .env as follows (**do not share this elsewhere**):
 ```py
 SLACK_BOT_TOKEN=xoxb-...
 ```
@@ -114,7 +116,12 @@ SLACK_APP_TOKEN=xapp-...
 
 9. (Note: you will need to repeat steps 7 and 8 if you change the bot scopes)
 
-10. Activate the bot so it can communicate with the LLM and the algorithm (you will need to do this whenever the host PC is shut down)
+10. Whichever channel you want the Slack bot to operate in, go to the channel details and copy the channel ID and add it to the .env as follows:
+```py
+SLACK_CHANNEL_ID=xxx...
+```
+
+11. Activate the bot so it can communicate with the LLM and the algorithm
 ```bash
 cd JC_organiser
 conda activate JC_organiser
@@ -122,15 +129,30 @@ python -m src.slack_bot
 ```
 
 
-**Notes** 
+## How to restart the project if your host PC shuts down
 
-1. To test locally (without slack):
+1. You will need to run the LLM, and initiate the slack bot
+```bash
+cd JC_organiser
+conda activate JC_organiser
+ollama pull gemma4:e2b
+python -m src.slack_bot
+```
+
+
+2. To test locally (without slack):
 ```bash
 cd JC_organiser
 conda activate JC_organiser
 python -m src.llm_interface
 ```
 
+
+## When a new member has joined JC or a current member leaves
+
+1. You will need to add (or remove) their name in group_names.csv (JC_Organiser/data/group/) but only do this once they are ready to give a talk as the algorithm will prioritise new members in new schedules
+
+2. No need to touch group_history.csv
 
 
 

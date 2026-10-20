@@ -10,12 +10,12 @@ from src.utilities import *
 from src.config import *
 
 #main function for generating the allocations (run daily)
-def main_allocations():
+def daily_workflow():
 
     #get core data objects
     people,history=data_retrieval(root_path,'group')
 
-    #get the provisional schedule (will return empty if it doesnt exist)
+    #get the provisional schedule (will return empty if it doesnt exist i.e. no dates left)
     provisional=get_provisional_schedule(root_path, 'group')
     print('\n full provisional:',provisional)
 
@@ -40,7 +40,7 @@ def main_allocations():
     #save the updated provisional schedule
     save_updated_provisionals(root_path,upcoming,'group')
 
-    return(upcoming)
+    return(upcoming,executed)
 
 
 #main function for removing people from the schedule if they are unavailable
@@ -59,6 +59,10 @@ def main_revisions_removal(removal_name,removal_role,removal_date):
     check_member(removal_name,people)
     removal_role=check_role(removal_role)
     removal_date=clean_date(removal_date)
+
+    #defend against unsupported role changes (chairs are usually past dates as they are saved to the first of the month and historical dates cannot be changed - yet)
+    if removal_role!='speaker':
+        raise ValueError("Only speakers can be manually removed. Chair and co-chair changes are not currently supported.") 
 
     #make changes
     upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
@@ -94,6 +98,10 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
     check_member(allocation_name,people)
     allocation_role=check_role(allocation_role)
     allocation_date=clean_date(allocation_date)
+
+    #defend against unsupported role changes (chairs are usually past dates as they are saved to the first of the month and historical dates cannot be changed - yet)
+    if allocation_role!='speaker':
+        raise ValueError("Only speakers can be manually allocated. Chair and co-chair changes are not currently supported.") 
 
     #validate entries
     if allocation_date < pd.Timestamp.today().normalize():
