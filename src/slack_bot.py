@@ -1,4 +1,5 @@
-import os, re, sys, threading
+import os, re, sys, threading, logging
+import datetime as dt
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -21,14 +22,14 @@ if not SLACK_BOT_TOKEN or not SLACK_APP_TOKEN:
     raise ValueError("Missing SLACK_BOT_TOKEN or SLACK_APP_TOKEN in .env")
 
 
-# nitialise Slack
+#initialise Slack
 app=App(token=SLACK_BOT_TOKEN)
 
 
-# Store conversation history by channel and thread
+#Store conversation history by channel and thread
 conversations={}
 
-# Allow only one LLM request at a time
+#Allow only one LLM request at a time
 llm_lock=threading.Lock()
 
 #get sender name so it understands what name to remove/add if someone makes a request for themselves (e.g. I am unavailable... etc.)
@@ -51,11 +52,8 @@ def handle(event, say, logger):
     if not text:
         return
 
-    #Use threads in channels, but a single conversation in each DM
-    #is_dm=event.get("channel_type") == "im"
-
+    #get the reply information
     thread_ts=event.get("thread_ts")
-
     conversation_key=(event["channel"], thread_ts)
 
     #Identify the sender
