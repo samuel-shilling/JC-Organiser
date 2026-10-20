@@ -13,6 +13,7 @@ from src.utilities import *
 # Need robust and automated stability tests (and test the daily workflow runs when the generation criteria is true)
 # need to add a function to cancel a JC session (wrapped by LLM) and ensure this does not re-generate when the daily workflow is ran!
 # need to thoroughly docstring the code 
+# do test runs with new key parameters (different JC days, different number of speakers, etc.)
 
 
 
