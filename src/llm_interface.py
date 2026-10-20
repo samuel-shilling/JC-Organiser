@@ -1,5 +1,5 @@
 #set root
-import sys
+import sys, traceback
 from pathlib import Path
 import datetime as dt
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -188,19 +188,16 @@ TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
 def ask_llm(messages, max_steps=5):
     """messages: per-thread list of chat messages (system prompt added here)."""
     for _ in range(max_steps):
-        response = client.chat(
-            model=MODEL,
-            messages=[{"role": "system", "content": INSTRUCTIONS}] + messages,
-            tools=list(TOOLS.values()),
-        )
+        response = client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}] + messages,tools=list(TOOLS.values()))
         messages.append(response.message)
         if not response.message.tool_calls:
             return response.message.content
         for call in response.message.tool_calls:
             try:
-                result = TOOLS[call.function.name](**call.function.arguments)
+                result=TOOLS[call.function.name](**call.function.arguments)
             except Exception as e:
-                result = json.dumps({"ok": False, "message": str(e)})
+                traceback.print_exc()
+                result=json.dumps({"ok": False,"message": str(e)})
             messages.append({"role": "tool", "tool_name": call.function.name, "content": str(result)})
     return("Sorry, I couldn't complete that request.")
 
