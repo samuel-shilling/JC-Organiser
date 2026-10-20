@@ -8,6 +8,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from src.llm_interface import ask_llm
 from src.main import daily_workflow
+from src.utilities import format_schedule
 
 #Load environment variables
 load_dotenv()
@@ -122,7 +123,7 @@ def run_daily():
             upcoming, generated = daily_workflow()
  
         if generated and SLACK_CHANNEL_ID:
-            app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=format_schedule(upcoming))
+            app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=format_schedule(upcoming,title="*New journal club schedule generated:*"))
     except Exception:
         logging.exception("Daily workflow failed")
 
