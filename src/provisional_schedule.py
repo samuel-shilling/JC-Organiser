@@ -98,6 +98,9 @@ def save_updated_provisionals(root_path,df_updated_provisional,WHICH):
 #select people for each role this month (one chair and co-chair but multiple speakers), people already selected this month cannot be selected again - unless there are no other available people
 def generate_and_save_provisional(provisional_full, days_since_last_role, target_dates, ROLES, NUM_OF_SPEAKERS, WHICH):
 
+    #for diagnostics
+    print(days_since_last_role)
+    
     #todays date
     today=pd.Timestamp.today().normalize()
 
@@ -132,7 +135,7 @@ def generate_and_save_provisional(provisional_full, days_since_last_role, target
             #only consider people who haven't been given a role yet this month
             candidates=days_since_last_role[~days_since_last_role['name'].isin(already_used)]
 
-
+            
 
             #if we've run out of people, start a new round (chairs stay excluded)
             if len(candidates)<num:
