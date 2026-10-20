@@ -81,6 +81,42 @@ Note: full instructions at https://docs.slack.dev/tools/bolt-python/creating-an-
 
 2. Select 'blank app' then select a name and allocate to your chosen workspace
 
+3. Add the following scopes:
+```bash
+chat:write
+app_mentions:read
+im:history
+users:read
+```
+
+4. Proceed to create and install and it should appear in your slack workspace
+
+5. Go back to 'build' in the Slack API (https://api.slack.com/apps/) and scroll to 'app level tokens' and ensure that the following scope is there:
+```bash
+connections:write
+```
+
+6. Go to 'socket mode' and select 'enable' then select 'event subscriptions' and press 'enable' and click on 'subscribe to bot events' and after adding the following events (below) and then select 'save':
+```bash
+app_mention
+message.im
+```
+
+7. Go to 'OAuth and permissions' and select 'reinstall to workspace' and copy the 'Bot user oauth token' beginning with 'xoxb' and add to .venv as follows (**do not share this elsewhere**):
+```py
+SLACK_BOT_TOKEN=xoxb-...
+```
+
+8. Go back to 'basic information' then scroll to 'app level tokens' and click on the token name (blue coloured) and copy the token code starting `xapp' then add to .env as follows (**do not share this elsewhere**):
+```py
+SLACK_APP_TOKEN=xapp-...
+```
+
+9. (Note: you will need to repeat steps 7 and 8 if you change the bot scopes)
+
+
+Turn on Socket Mode by selecting 'basic information' then 'app-level tokens', then Generate Token and Scopes. Add the connections:write scope and copy the xapp-... token. Then enable Socket Mode in the left menu.
+
 
 
 **How to re-active the project (if local machine is restarted for example)**
