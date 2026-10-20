@@ -68,7 +68,7 @@ def show_schedule() -> str:
 
     #format the dates
     upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
-    return(json.dumps({"ok": True, "schedule": upcoming.to_dict("records")}))
+    return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
     """Remove a member from a role on a date in the provisional schedule.
@@ -83,7 +83,7 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
         JSON with ok (true/false) and a message
     """
     upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
-    return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": upcoming.astype(str).to_dict("records")}))
+    return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": format_schedule(upcoming)}))
 
 def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
@@ -98,7 +98,7 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
     """
 
     upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
-    return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": upcoming.astype(str).to_dict("records")}))
+    return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": format_schedule(upcoming)}))
 
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
@@ -119,9 +119,8 @@ def ask_llm(messages, max_steps=5):
                 result = TOOLS[call.function.name](**call.function.arguments)
             except Exception as e:
                 result = json.dumps({"ok": False, "message": str(e)})
-            messages.append({"role": "tool", "tool_name": call.function.name,
-                             "content": str(result)})
-    return "Sorry, I couldn't complete that request."
+            messages.append({"role": "tool", "tool_name": call.function.name, "content": str(result)})
+    return("Sorry, I couldn't complete that request.")
 
 if __name__ == "__main__":
     history = []
