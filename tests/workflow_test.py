@@ -12,11 +12,9 @@ from src.utilities import *
 #need to do:
 # test the workflow generation (end of month)
 # need to add a function to cancel a JC session (wrapped by LLM) and ensure this does not re-generate when the daily workflow is ran!
-# add an LLM function to read in past (confirmed) dates
 # need to add a function to help the LLM deduce information (see mac notes - this is still a problem and it keeps asking for clarification)
-# explain in readme.md that JC member list changes must be made directly to the source .csv
 # need to thoroughly docstring the code 
-# how to get the script to automatically run once daily (and generate next schedule if needed)
+
 
 
 

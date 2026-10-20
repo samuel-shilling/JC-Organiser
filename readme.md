@@ -148,6 +148,12 @@ python -m src.llm_interface
 ```
 
 
+## When a new member has joined JC or a current member leaves
+
+1. You will need to add (or remove) their name in group_names.csv (JC_Organiser/data/group/) but only do this once they are ready to give a talk as the algorithm will prioritise new members in new schedules
+
+2. No need to touch group_history.csv
+
 
 
 
