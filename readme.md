@@ -115,6 +115,8 @@ SLACK_APP_TOKEN=xapp-...
 9. (Note: you will need to repeat steps 7 and 8 if you change the bot scopes)
 
 
+
+
 Turn on Socket Mode by selecting 'basic information' then 'app-level tokens', then Generate Token and Scopes. Add the connections:write scope and copy the xapp-... token. Then enable Socket Mode in the left menu.
 
 
