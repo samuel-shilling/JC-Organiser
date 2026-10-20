@@ -67,15 +67,14 @@ def main_revisions_removal(removal_name,removal_role,removal_date):
     #save the updated provisionals
     save_updated_provisionals(root_path,upcoming,'group')
 
+    # print("Saving to:", root_path / "data" / "group" / "group_provisional.csv")
+    # print("Schedule after removal:")
+    # print(upcoming)
 
-    print("Saving to:", root_path / "data" / "group" / "group_provisional.csv")
-    print("Schedule after removal:")
-    print(upcoming)
+    # save_updated_provisionals(root_path, upcoming, 'group')
 
-    save_updated_provisionals(root_path, upcoming, 'group')
-
-    print("Schedule read back from file:")
-    print(get_provisional_schedule(root_path, 'group'))
+    # print("Schedule read back from file:")
+    # print(get_provisional_schedule(root_path, 'group'))
 
     return(upcoming)
 
