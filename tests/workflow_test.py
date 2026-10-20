@@ -10,7 +10,7 @@ from src.config import *
 from src.utilities import *
 
 #need to do:
-# test the workflow generation (end of month)
+# Need robust and automated stability tests (and test the daily workflow runs when the generation criteria is true)
 # need to add a function to cancel a JC session (wrapped by LLM) and ensure this does not re-generate when the daily workflow is ran!
 # need to thoroughly docstring the code 
 
