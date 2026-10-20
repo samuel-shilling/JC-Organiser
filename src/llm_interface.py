@@ -1,6 +1,7 @@
 #set root
 import sys
 from pathlib import Path
+import datetime as dt
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 root_path=Path(__file__).parent.resolve().parents[0]
 
@@ -67,7 +68,22 @@ def show_schedule() -> str:
     _, upcoming = filter_provisional_schedule(provisional)
 
     #format the dates
-    upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
+    #upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
+
+    #get the chairs (they are saved for the first JC of each month so they may not be in the upcoming file)
+    if 'chair' not in upcoming['role'].unique() and 'co-chair' not in upcoming['role'].unique():
+
+        #get core data objects (note history will contain lots of past dates)
+        _,history=data_retrieval(root_path,'group')
+
+        #select the most recent chair and co-chairs
+        chair_rows=history[history['role'].isin(['chair','co-chair'])]
+        current_chairs=chair_rows[chair_rows['date']==chair_rows['date'].max()]
+
+        #merge with upcoming (remaining talks)
+        upcoming=pd.concat((upcoming,current_chairs))
+
+
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
