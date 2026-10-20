@@ -10,6 +10,7 @@ from src.config import *
 from src.utilities import *
 
 #need to do:
+# add the rest of the workflow to the LLM interface (schedule generation)
 # need to add a function to cancel a JC session (wrapped by LLM)
 # add an LLM function to read in past (confirmed) dates
 # need to add a function to help the LLM deduce information (see mac notes - this is still a problem and it keeps asking for clarification)

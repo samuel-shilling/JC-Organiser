@@ -10,7 +10,7 @@ from src.utilities import *
 from src.config import *
 
 #main function for generating the allocations (run daily)
-def main_allocations():
+def daily_workflow():
 
     #get core data objects
     people,history=data_retrieval(root_path,'group')
