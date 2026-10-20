@@ -67,7 +67,7 @@ def show_schedule() -> str:
     _, upcoming = filter_provisional_schedule(provisional)
 
     #format the dates
-    upcoming=upcoming["date"].dt.strftime("%Y-%m-%d")
+    upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
     return(json.dumps({"ok": True, "schedule": upcoming.to_dict("records")}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:

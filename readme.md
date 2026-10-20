@@ -77,7 +77,9 @@ python -m src.llm_interface
 **Slack bot setup instructions**
 Note: full instructions at https://docs.slack.dev/tools/bolt-python/creating-an-app/
 
-1. 
+1. Go to 'build' in the Slack API (https://api.slack.com/apps/) and select 'create new app'
+
+2. Select 'blank app' then select a name and allocate to your chosen workspace
 
 
 

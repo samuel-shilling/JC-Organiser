@@ -96,6 +96,17 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
     allocation_role=check_role(allocation_role)
     allocation_date=clean_date(allocation_date)
 
+    #validate entries
+    if allocation_date < pd.Timestamp.today().normalize():
+        raise ValueError("That date is in the past.")
+    if allocation_date.day_name()!=JC_DAYS:
+        raise ValueError(f"{allocation_date.date()} is not a {JC_DAYS}.")
+    same_day=upcoming['date']==allocation_date
+    if (same_day & (upcoming['name'] == allocation_name)).any():
+        raise ValueError(f"{allocation_name} already has a role on that date.")
+    if allocation_role in ('chair', 'co-chair') and (same_day & (upcoming['role'] == allocation_role)).any():
+        raise ValueError(f"The {allocation_role} slot on that date is already filled.")
+
     #make changes
     upcoming=manual_role_allocation(upcoming,allocation_name,allocation_role,allocation_date)
     print('manual allocation: {}, new schedule: {}'.format((allocation_name,allocation_role,allocation_date),upcoming))
@@ -107,6 +118,6 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
 
 
 
-#run the main function
-if __name__ == "__main__":
-    main()
+# #run the main function
+# if __name__ == "__main__":
+#     main()
