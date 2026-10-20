@@ -153,7 +153,7 @@ def show_schedule() -> str:
     #upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
 
     #get the chairs (they are saved for the first JC of each month so they may not be in the upcoming file)
-    if 'chair' not in upcoming['role'].unique() and 'co-chair' not in upcoming['role'].unique():
+    if len(upcoming)>0 and 'chair' not in upcoming['role'].unique() and 'co-chair' not in upcoming['role'].unique():
 
         #get core data objects (note history will contain lots of past dates)
         _,history=data_retrieval(root_path,'group')
@@ -174,7 +174,7 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
 
     Args:
         removal_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        removal_role: One of the following: chair, co-chair, speaker
+        removal_role: Currently only supported for one role, the speaker
         removal_date: The journal club date in YYYY-MM-DD format
 
     Returns:
@@ -194,7 +194,7 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
 
     Args:
         allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        allocation_role: chair, co-chair, or speaker.
+        allocation_role: Currently only supported for one role, the speaker
         allocation_date: Date in YYYY-MM-DD format.
 
     Returns:

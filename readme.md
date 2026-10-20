@@ -104,7 +104,7 @@ app_mention
 message.im
 ```
 
-7. Go to 'OAuth and permissions' and select 'reinstall to workspace' and copy the 'Bot user oauth token' beginning with 'xoxb' and add to .venv as follows (**do not share this elsewhere**):
+7. Go to 'OAuth and permissions' and select 'reinstall to workspace' and copy the 'Bot user oauth token' beginning with 'xoxb' and add to .env as follows (**do not share this elsewhere**):
 ```py
 SLACK_BOT_TOKEN=xoxb-...
 ```
