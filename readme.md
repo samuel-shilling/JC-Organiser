@@ -114,24 +114,23 @@ SLACK_APP_TOKEN=xapp-...
 
 9. (Note: you will need to repeat steps 7 and 8 if you change the bot scopes)
 
+10. Activate the bot so it can communicate with the LLM and the algorithm (you will need to do this whenever the host PC is shut down)
+```bash
+cd JC_organiser
+conda activate JC_organiser
+python -m src.slack_bot
+```
 
 
+**Notes** 
 
-Turn on Socket Mode by selecting 'basic information' then 'app-level tokens', then Generate Token and Scopes. Add the connections:write scope and copy the xapp-... token. Then enable Socket Mode in the left menu.
+1. To test locally (without slack):
+```bash
+cd JC_organiser
+conda activate JC_organiser
+python -m src.llm_interface
+```
 
-
-
-**How to re-active the project (if local machine is restarted for example)**
- 1. Activate the virtual environment
- ```bash
- cd JC_organiser
- conda activate JC_organiser
- ```
-
- 2. Restart the LLM interface
- ```bash
- python -m src.llm_interface
- ```
 
 
 
