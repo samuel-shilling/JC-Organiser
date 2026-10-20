@@ -60,6 +60,10 @@ def main_revisions_removal(removal_name,removal_role,removal_date):
     removal_role=check_role(removal_role)
     removal_date=clean_date(removal_date)
 
+    #defend against unsupported role changes (chairs are usually past dates as they are saved to the first of the month and historical dates cannot be changed - yet)
+    if removal_role!='speaker':
+        raise ValueError("Only speakers can be manually removed. Chair and co-chair changes are not currently supported.") 
+
     #make changes
     upcoming=make_removals(upcoming,removal_name,removal_role,removal_date)
     #print('removal: {}, new schedule: {}'.format(removal_name,upcoming))
@@ -94,6 +98,10 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
     check_member(allocation_name,people)
     allocation_role=check_role(allocation_role)
     allocation_date=clean_date(allocation_date)
+
+    #defend against unsupported role changes (chairs are usually past dates as they are saved to the first of the month and historical dates cannot be changed - yet)
+    if removal_role!='speaker':
+        raise ValueError("Only speakers can be manually allocated. Chair and co-chair changes are not currently supported.") 
 
     #validate entries
     if allocation_date < pd.Timestamp.today().normalize():

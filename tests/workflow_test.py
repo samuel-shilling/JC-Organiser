@@ -12,7 +12,6 @@ from src.utilities import *
 #need to do:
 # test the workflow generation (end of month)
 # need to add a function to cancel a JC session (wrapped by LLM) and ensure this does not re-generate when the daily workflow is ran!
-# need to add a function to help the LLM deduce information (see mac notes - this is still a problem and it keeps asking for clarification)
 # need to thoroughly docstring the code 
 
 
