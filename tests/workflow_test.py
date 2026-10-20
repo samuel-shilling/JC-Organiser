@@ -19,7 +19,7 @@ from src.utilities import *
 
 
 #which test to run? enter 'group' or 'dummy'
-WHICH='group'
+WHICH='dummy'
 
 #get core data objects
 people,history=data_retrieval(root_path,WHICH)
