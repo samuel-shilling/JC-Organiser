@@ -113,6 +113,17 @@ def start_scheduler():
     scheduler.start()
     return(scheduler)
 
+#post started message to channel as well as the termainl (terminal handled by a manual print statement under neath the __name__ line)
+def post_to_channel(text):
+    """Post a message to the announcement channel (does nothing if SLACK_CHANNEL_ID isn't set)."""
+    if not SLACK_CHANNEL_ID:
+        logging.warning("SLACK_CHANNEL_ID is not set, so this was not posted to Slack: %s", text)
+        return
+    try:
+        app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=text)
+    except Exception:
+        logging.exception("Could not post to Slack")
+
 #call the daily_workflow function from main.poy
 def run_daily():
     """Archive past sessions and generate the next schedule if it is due (safe to run repeatedly)."""
@@ -128,7 +139,13 @@ def run_daily():
 
 
 if __name__ == "__main__":
-    print("Slack bot was previously offline but is now starting up and will begin by running the daily workflow...")
+    startup_message="Slack bot was previously offline but is now starting up and will begin by running the daily workflow..."
+
+    #print to terminal and then to slack
+    print(startup_message)
+    post_to_channel(startup_message)
+
+    #run daily workflow
     start_scheduler()
 
     handler=SocketModeHandler(app, SLACK_APP_TOKEN)
