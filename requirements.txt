@@ -1,6 +1,6 @@
 numpy==2.5.4
 pandas==3.0.6
 slack_bolt
-apscheduler
+apscheduler<4
 python-dotenv
 ollama
