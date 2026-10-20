@@ -54,7 +54,7 @@ def handle(event, say, logger):
     # Use threads in channels, but a single conversation in each DM
     is_dm=event.get("channel_type") == "im"
 
-    thread_ts=(None if is_dm else event.get("thread_ts", event["ts"]))
+    thread_ts=event.get("thread_ts")
 
     conversation_key=(event["channel"], thread_ts)
 
