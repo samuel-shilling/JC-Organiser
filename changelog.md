@@ -1,25 +1,38 @@
 # Changelog
 
-All notable changes to this project are documented in this file.
+All notable changes to this project are documented in this file and dates are formatted: YYYY-MM-DD
 
-This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+This changelog roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0] alpha - 2026-10-20
 
-### The core Python scheduling workflow
-
-#### Added 
-- Defensive coding checks that raise error messages if incompatible arguments are passed
+### Added
+- Automated daily workflow in the Slack bot (APScheduler): runs every morning at 09:00 and once on startup (to catch up if the bot was offline). This basically calls the main workflow function from v0.1.0 (which was already there but just not implemented). It archives past sessions to history and generates the next provisional schedule when it is within 5 days of the first JC session
+- New environment (.venv.example) variable `SLACK_CHANNEL_ID` so the bot posts a start-up message and posts the new schedule whenever one is generated
+- Added a utility function `format_schedule()` to structure content so they are returned as nicely formatted Slack text 
+- Conversation history is cleared once it exceeds 40 messages, so the LLM does not get overloaded
 
 ### Changed
-- 
+- `main_allocations()` renamed to `daily_workflow()`, which now returns `(upcoming, generated)` so new generations can be checked and confirmed
+- Can now show the chair and co-chair in `show_schedule` as these are taken from history instead of relying on the provisional dates
+- LLM system prompt replaced (with help of an LLM) and is now more concise and accurate about capabilities and understands that the schedule generation is automated and cannot be triggered by the LLM (only show schedule, remove, and manually allocate can)
+- Tool errors are flagged with an `ok: false` return with a message, and tracebacks are printed to the terminal 
+- Failed function calls now show diagnostic messages in the slack channel 
+- Provisional schedule generation now excludes anyone already in the existing provisional schedule 
+- Readme restructured into separate Python, LLM and Slack setup sections, with new sections on restarting the bot and on adding or removing members
+- `apscheduler` in requirements.txt capped at version `<4` to prevent API changes affecting this project
 
 ### Fixed
-- 
+- `.env.example` now uses `OLLAMA_HOST` (previously `LLM_BASE_URL`, which the code never read)
+- Multiple bugs in functions fixed throughout the various scripts
 
-### Removed
-- 
+### Known limitations
+- (low priority) Chair and co-chair changes are not supported
+- (low priority) Schedule generation runs only via the daily job. This is intended, but is rigid and not changeable
+- (mid priority) No way to cancel a JC session yet (the daily workflow may also regenerate this session?)
+
+
 
 ## [0.1.0] prototype - 2026-10-20
 
@@ -36,5 +49,6 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Only a handful of the core functions of the Python algorithm are implemented in the LLM and Slack bot (show schedule, remove someone, and allocate someone) 
 - Some of these tools require an existing provisional schedule. Although automated schedule generation is implemented in the Python workflow, it is not yet callable as an LLM tool or run as a scheduled background task by the Slack bot 
 - Provisional schedules are constantly updated so any past dates are removed and saved into a separate file, which means show schedule (which only loads the provisional schedule) does not show previous plans (i.e. who spoke last week)
+
 
 
