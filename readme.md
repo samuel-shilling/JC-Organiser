@@ -114,7 +114,12 @@ SLACK_APP_TOKEN=xapp-...
 
 9. (Note: you will need to repeat steps 7 and 8 if you change the bot scopes)
 
-10. Activate the bot so it can communicate with the LLM and the algorithm (you will need to do this whenever the host PC is shut down)
+10. Whichever channel you want the Slack bot to operate in, go to the channel details and copy the channel ID and add it to the .env as follows:
+```py
+SLACK_CHANNEL_ID=xxx...
+```
+
+11. Activate the bot so it can communicate with the LLM and the algorithm (you will need to do this whenever the host PC is shut down)
 ```bash
 cd JC_organiser
 conda activate JC_organiser

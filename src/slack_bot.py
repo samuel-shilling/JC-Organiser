@@ -15,6 +15,7 @@ load_dotenv()
 
 SLACK_BOT_TOKEN=os.getenv("SLACK_BOT_TOKEN")
 SLACK_APP_TOKEN=os.getenv("SLACK_APP_TOKEN")
+SLACK_CHANNEL_ID=os.getenv("SLACK_CHANNEL_ID")
 
 if not SLACK_BOT_TOKEN or not SLACK_APP_TOKEN:
     raise ValueError("Missing SLACK_BOT_TOKEN or SLACK_APP_TOKEN in .env")
