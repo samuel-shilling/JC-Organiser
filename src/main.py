@@ -40,7 +40,7 @@ def daily_workflow():
     #save the updated provisional schedule
     save_updated_provisionals(root_path,upcoming,'group')
 
-    return(upcoming)
+    return(upcoming,executed)
 
 
 #main function for removing people from the schedule if they are unavailable

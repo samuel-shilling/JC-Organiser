@@ -112,9 +112,9 @@ def generate_and_save_provisional(provisional_full, days_since_last_role, target
     if already_generated or not within_timeframe:
         return(provisional_full,False)
 
-    #empty lists for the selections to be saved to
+    #empty lists for the selections to be saved to (making sure people already scheduled provisionally this month cannot be used again)
     allocations=[]
-    already_used=[]
+    already_used=provisional_full['name'].unique().tolist() 
     chairs=[]
     
     #loop through each role
