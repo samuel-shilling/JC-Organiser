@@ -15,7 +15,7 @@ def daily_workflow():
     #get core data objects
     people,history=data_retrieval(root_path,'group')
 
-    #get the provisional schedule (will return empty if it doesnt exist)
+    #get the provisional schedule (will return empty if it doesnt exist i.e. no dates left)
     provisional=get_provisional_schedule(root_path, 'group')
     print('\n full provisional:',provisional)
 
