@@ -164,8 +164,14 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
     Returns:
         JSON with ok (true/false) and a message
     """
-    upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
-    return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": format_schedule(upcoming)}))
+    #run the removal function, which will fail if the role is invalid (chairs not supported)
+    try:
+        upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
+        return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": format_schedule(upcoming)}))
+    except Exception as e:
+        traceback.print_exc()
+        return(json.dumps({"ok": False,"message": str(e)}))
+
 
 def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
@@ -178,9 +184,14 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
     Returns:
         JSON with ok (true/false) and a message
     """
+    #run the allocation function, which will fail if the role is invalid (chairs not supported)
+    try:
+        upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
+        return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": format_schedule(upcoming)}))
+    except Exception as e:
+        traceback.print_exc()
+        return(json.dumps({"ok": False,"message": str(e)}))
 
-    upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
-    return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": format_schedule(upcoming)}))
 
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}

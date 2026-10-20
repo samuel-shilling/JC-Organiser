@@ -100,7 +100,7 @@ def main_revisions_allocation(allocation_name,allocation_role,allocation_date):
     allocation_date=clean_date(allocation_date)
 
     #defend against unsupported role changes (chairs are usually past dates as they are saved to the first of the month and historical dates cannot be changed - yet)
-    if removal_role!='speaker':
+    if allocation_role!='speaker':
         raise ValueError("Only speakers can be manually allocated. Chair and co-chair changes are not currently supported.") 
 
     #validate entries
