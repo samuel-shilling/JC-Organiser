@@ -66,6 +66,10 @@ def handle(event, say, logger):
         with llm_lock:
             history = conversations.setdefault(conversation_key, [])
 
+            #clear the history so LLM doesnt get overloaded
+            if len(history) > 40:
+                history.clear()
+                
             history.append({"role": "user","content": f"[{name}]: {text}",})
 
             answer=ask_llm(history)
