@@ -11,9 +11,11 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Name matching function ```resolve_member``` which helps the LLM connect peoples names to peoples messages (i.e. 'I am not available' = 'Forename Surname is not available') and is wrapped in ```remove_person``` and ```allocate_person``` 
 - ```utilities.build_schedule_message_for_slack_bot``` which is a wrapper of ```format_schedule``` and is accecssible to the slack bot (previously only the LLM can access formatted data output)
 
+
 ### Changed
 - ```run_daily``` now calls the new ```build_schedule_message_for_slack_bot``` from ```utilities.py``` in order to structure the schedule message in a similar fashion to how the LLM does (via ```format_schedule```)
 - ```ask_llm``` modified so that the LLM does not interpret function outputs, which are already structured, and it will return the function output directly. The LLM will only produce a reply if there is no viable function output (i.e. ask for more information)
+- ```allocate_people``` and ```remove_people``` are hard coded for the speaker role and no longer accept roles as arguments (chairs cannot be changed as revisions are only made to provisional schedules but chairs are often saved into history) which in turn means the LLM finally no longer asks which role when there is only one option anyway!
 - Improved traceback messages on errors
 
 ### Fixed
