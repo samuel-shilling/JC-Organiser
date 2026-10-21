@@ -11,6 +11,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - ```build_system_prompt``` a wrapper for the prompt instructions
 which also appends todays date and the dates of the upcoming JC sessions s the LLM is aware of dates and does not annoyingly ask for date clarification when it is obvious
+- Added defensive checks against proposed schedule changes to ensure they are on the same day as a JC session (thursdays) instead of allowing changes on other days
 
 
 ### Changes

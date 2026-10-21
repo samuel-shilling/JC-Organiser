@@ -7,6 +7,10 @@
 
 3. Slack Bot integration which is the medium in which the JC members can interact with the algorithm via the LLM.
 
+## Local LLM hosting
+
+This means data is not shared outside your machine (other than posts to a Slack channel). It does mean you will need approximately 8GB of RAM. This amount of memory is only allocated when the LLM is interacted with by a user, and then becomes available again after 2 minutes of silence.
+
 
 
 ## Installation instructions (Python algorithm)
