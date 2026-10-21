@@ -56,8 +56,7 @@ TOOL USAGE RULES
 
 REQUIRED INFORMATION FOR CHANGES
 
-To remove or allocate a member, you need:
-- The member's full name.
+- The member's name, exactly as the user typed it (a first name or surname alone is fine; the tool matches it against the group list).
 - The journal club date.
 
 Resolve these details using the current conversation and schedule wherever
@@ -139,6 +138,9 @@ using another tool. And do not say you are capable of doing so.
 - Do not claim a new schedule has been generated unless you have
 confirmation that the automated workflow completed successfully.
 
+CANCELLING JOURNAL CLUB SESSIONS
+- If someone asks to cancel a journal club session, you must say that this feature is not yet supported. Suggest that the person removes the speakers from that session instead (noting that this must be done for one speaker at a time as separate tasks)
+
 RESPONSE STYLE
 
 - Be concise, professional, and polite.
@@ -167,7 +169,7 @@ def remove_person(removal_name: str, removal_date: str) -> str:
     If ok is false, explain the failure and do not claim anything changed.
 
     Args:
-        removal_name: Full name as it appears in the schedule, with capitalised Forename and Surname
+        removal_name: The member's name exactly as the user typed it (e.g. "Steve"). A first name alone is fine. Do not ask for a full name; the tool resolves it.
         removal_date: The journal club date in YYYY-MM-DD format
     """
     #hard coded for now as chairs cannot be changed yet due to saving into history quickly into the schedule whereas changes are only made to provisioanl
@@ -193,7 +195,7 @@ def allocate_person(allocation_name: str, allocation_date: str) -> str:
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
 
     Args:
-        allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
+        allocation_name: The member's name exactly as the user typed it (e.g. "Melzie"). A first name alone is fine. Do not ask for a full name; the tool resolves it.
         allocation_date: Date in YYYY-MM-DD format.
 
     Returns:

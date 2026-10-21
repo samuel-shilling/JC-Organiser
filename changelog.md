@@ -5,12 +5,21 @@ All notable changes to this project are documented in this file and dates are fo
 This changelog roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.1] alpha - 2026-10-21
+
+### Changed
+- Changes to ```INSTRUCTIONS``` in ```ask_llm``` which better utilise the name allocation functions
+- Changed daily workflow to occur at 07:00 instead of 09:00 so that new schedule is generated before most people open Slack
+
+
 ## [0.3.0] alpha - 2026-10-21
 
 ### Added
 - Name matching function ```resolve_member``` which helps the LLM connect peoples names to peoples messages (i.e. 'I am not available' = 'Forename Surname is not available') and is wrapped in ```remove_person``` and ```allocate_person``` 
 - ```utilities.build_schedule_message_for_slack_bot``` which is a wrapper of ```format_schedule``` and is accecssible to the slack bot (previously only the LLM can access formatted data output)
 - Added a new function ```run_reminder``` to the daily jobs ```start_scheduler``` which checks if JC is today and if so will post reminders in the morning (10:30), one hour before (14:00) and then when JC is starting (at 15:00). Output is structured
+- LLM prompt to instruct users how to remove a JC session (which is not directly supported) using a workaround by removing the speakers scheduled on that date
 
 
 ### Changed

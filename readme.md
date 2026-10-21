@@ -157,17 +157,3 @@ python -m src.llm_interface
 
 
 
-
-**Temporary notes to self (not useful to anyone else)**
-
-1. CV notes
-- Developing my first LLM application for task allocation and scheduling 
-- Skill: Wrapping LLMs to automate daily tasks for humans
-- Skill: Processing AI generated data into structured formats
-
-2. Project startup commands
-[make empty repo on git]
-conda create --name JC_organiser python=3.12
-conda activate JC_organiser
-pip install numpy pandas dill openai 
-pip freeze > requirements.txt
