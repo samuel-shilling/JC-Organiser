@@ -6,6 +6,7 @@ root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
 from src.config import *
+from src.provisional_schedule import *
 
 
 #top level function to retrieve all central data objects
