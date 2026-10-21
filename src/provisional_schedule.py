@@ -56,6 +56,8 @@ def filter_provisional_schedule(provisional):
     today=pd.Timestamp.today().normalize()
     confirmed=provisional[provisional['date']<today]
     upcoming=provisional[provisional['date']>=today]
+    # for testing:
+    # confirmed=provisional.copy()
     return(confirmed, upcoming)
 
 #run daily to save confirmed provisionals to history file
