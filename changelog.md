@@ -14,8 +14,8 @@ which also appends todays date and the dates of the upcoming JC sessions s the L
 
 
 ### Changes
-- LLM instructions updated to improved responses regarding future schedules, for differentiating between adding new people to JC itself and adding someone as a speaker (same for removing people), to instruct people on how to add/remove people from JC itself (if requested)
-- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the above differentiation is more clear
+- LLM instructions updated to improved responses regarding future schedules (new generation is fully automated)
+- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the LLM does not get confused between removing someone from JC or removing a speaker from a date if a question is ambiguous 
 
 
 
