@@ -175,7 +175,7 @@ def format_schedule(df, title="*Upcoming journal club schedule:*"):
         lines.append(f"- {month.strftime('%B')}: {people}")
 
     #exclude chairs and co-chairs from the remaining schedule
-    df[~df['role'].isin(['chair','co-chair'])]
+    df=df[~df['role'].isin(['chair','co-chair'])]
 
     #format the rest of the schedule
     for date, group in df.groupby("date"):

@@ -18,6 +18,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 - A bug in ```build_schedule_message_for_slack_bot``` where a dependency was not carried over to the call in ```run_daily```
+- A bug in ```format_schedule``` which meant chairs were not removed when looping through speakers (so chairs were printed twice)
 
 ## [0.2.0] alpha - 2026-10-20
 
