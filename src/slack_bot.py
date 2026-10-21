@@ -1,4 +1,4 @@
-import os, re, sys, threading, logging
+import os, re, sys, threading, logging, traceback
 import datetime as dt
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -77,12 +77,14 @@ def handle(event, say, logger):
 
         say(text=answer, thread_ts=thread_ts)
 
-    except Exception:
-        logger.exception("Failed to process Slack message")
+    except Exception as e:
+        traceback.print_exc()
 
         #reset this thread's history
         conversations.pop(conversation_key, None)  
-        say(text="Sorry, something went wrong processing your request (start diagnostics from line 83 in slack_bot.py).",thread_ts=thread_ts)
+        say(text="Sorry, something went wrong processing your request",thread_ts=thread_ts)
+        with llm_lock:
+            conversations.pop(conversation_key, None)
 
 
 #Handle messages that mention the bot in a channel
