@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file and dates are fo
 This changelog roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.1] - 2026-10-21
+
+### Added
+- ```build_system_prompt``` a wrapper for the prompt instructions
+which also appends todays date and the dates of the upcoming JC sessions s the LLM is aware of dates and does not annoyingly ask for date clarification when it is obvious
+
+
+### Changes
+- LLM instructions updated to improved responses regarding future schedules (new generation is fully automated)
+- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the LLM does not get confused between removing someone from JC or removing a speaker from a date if a question is ambiguous 
+
+
+
 ## [1.0] - 2026-10-21
 
 ### First stable release

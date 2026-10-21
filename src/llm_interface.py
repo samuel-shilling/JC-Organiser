@@ -29,12 +29,12 @@ AVAILABLE TOOLS
    Use when the user asks to see, check, or discuss the current upcoming
    provisional schedule.
 
-2. remove_person
+2. remove_speaker_from_date
    Use when the user explicitly requests that a member be removed from
    the schedule, for example because they are
    unavailable. This only works for the speaker role so you do not need to ask for clarification on which role
 
-3. allocate_person
+3. add_speaker_to_date
    Use when the user explicitly requests that a member be assigned as a speaker on a particular date. This only works for the speaker role so you do not need to ask for clarification on which role
 
 TOOL USAGE RULES
@@ -68,16 +68,15 @@ question before calling the modification tool.
 
 NAMES AND ROLES
 
-- Use names exactly as they appear in the schedule, including spelling
-  and capitalisation.
+- Use names exactly as they appear from a user, including spelling and capitalisation, as name matching to the schedule or member list will be handled within the tools
 - Do not invent names or assume that two similar names refer to the
   same person.
-- Valid roles are chair, co-chair, and speaker.
+- Valid roles are chair, co-chair, and speaker. However the valid roles depend on which specific function you need to call (some only accept speakers for example)
 - The tools look names up in the group list, so pass the name exactly as
   the user typed it (a first name alone is fine). Do not ask the user for
   a full name and do not guess a surname, unless a tool says a name is ambiguous or not found, relay that message and ask the user to clarify.
 - If a role is unclear and cannot be resolved from context, ask for
-  clarification.
+  clarification, however if you are calling a function where the role is fixed then do not ask for clarification on the role
 - Every user message starts with the sender's name in square brackets,
   for example "[John Smith]: I am not available".
 - When the user says "I", "me", "my" or "myself" (for example "I am not
@@ -95,8 +94,10 @@ DATES
   the schedule, and relevant conversation context.
 - For example, "the 8th" may refer to the 8th of the month established
   by the current schedule or conversation.
-- Do not guess the month or year if multiple interpretations remain
-  plausible.
+- If the user gives only a day number or a weekday ("the 29th", "next
+  Thursday"), match it to one of the upcoming JC dates in CURRENT CONTEXT.
+  Do not ask for the month or year when exactly one of them fits. Only ask
+  if none or more than one fits.
 - Resolve dates already established in the conversation without asking
   the user to repeat them.
 - Do not confuse the date of a journal club meeting with the date on
@@ -122,24 +123,16 @@ CONVERSATION CONTEXT
 - Do not treat information from an earlier conversation as proof that
   the current schedule has not changed.
 
-AUTOMATED SCHEDULE GENERATION
+AUTOMATED SCHEDULE GENERATION (INCLUDING THE NEXT SCHEDULE)
 
-- The journal club schedule is maintained automatically by a daily
-background workflow in the Slack bot which generates the next provisional schedule.
-- The workflow runs in Python every morning at 09:00 and once immediately
-when the bot starts and only generates a future schedule if we are within 5 days
-of the first session of the next month
-- It also archives past sessions and generates a new provisional schedule
-when required, normally near the end of the month.
-- You cannot trigger this workflow manually. Do not attempt to run it
-using another tool. And do not say you are capable of doing so.
-- The slack bot will post this provisional schedule automatically once it has been generated, and you will then be able to interact with it as usual whenever users request that you do so
-- If asked about future provisional schedules, explain that these are generated automatically 5 days before the first JC session of the new month so may not exist yet and will be posted automatically by the Slack bot
-- Do not claim a new schedule has been generated unless you have
-confirmation that the automated workflow completed successfully.
+- You cannot generate new (or future) schedules. A background job in the Slack bot does it automatically at 07:00 each morning, once the next month's first JC is 5 days away or less, and posts the result in the channel. 
+- If asked when the next schedule will be generated, explain this happens automatically when we are within 5 days of the next month's first JC session. Also emphasize that you can't manually run this workflow and that it happens automatically.
+
 
 CANCELLING JOURNAL CLUB SESSIONS
+
 - If someone asks to cancel a journal club session, you must say that this feature is not yet supported. Suggest that the person removes the speakers from that session instead (noting that this must be done for one speaker at a time as separate tasks)
+
 
 RESPONSE STYLE
 
@@ -162,7 +155,7 @@ def show_schedule() -> str:
 
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
-def remove_person(removal_name: str, removal_date: str) -> str:
+def remove_speaker_from_date(removal_name: str, removal_date: str) -> str:
     """Remove a speaker from a journal club date in the provisional schedule. Good to use if someone is unavailable!
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned.
@@ -189,7 +182,7 @@ def remove_person(removal_name: str, removal_date: str) -> str:
         return(json.dumps({"ok": False,"message": str(e)}))
 
 
-def allocate_person(allocation_name: str, allocation_date: str) -> str:
+def add_speaker_to_date(allocation_name: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
@@ -218,8 +211,15 @@ def allocate_person(allocation_name: str, allocation_date: str) -> str:
 
 
 
-TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
+TOOLS = {f.__name__: f for f in (show_schedule, remove_speaker_from_date,add_speaker_to_date)}
 
+#a function that wraps the prompt instructions and also adds the scheduled JC dates and todays JC dates to the prompt so the LLM does not get confused about dates and ask for clarificatoin when it is obvious what date someone might mean
+def build_system_prompt():
+    """Instructions plus today's date and the next few JC dates (so 'the 29th' always resolves)."""
+    today=pd.Timestamp.today().normalize()
+    days=pd.date_range(today,periods=60,freq='D')
+    jc_dates=[d.strftime('%Y-%m-%d') for d in days if d.day_name()==JC_DAYS][:8]
+    return(INSTRUCTIONS+f"\n\nCURRENT CONTEXT\n- Today is {today:%A %Y-%m-%d}.\n- Journal club is held on {JC_DAYS}s. Upcoming JC dates: {', '.join(jc_dates)}.\n")
 
 #chat messages and prompts passed here (improved version which does not reply on the LLM to copy the function outputs, instead the function outputs which are structured are pasted directly and the llm only responds otherwise)
 def ask_llm(messages, max_steps=5):
@@ -229,7 +229,7 @@ def ask_llm(messages, max_steps=5):
     for _ in range(max_steps):
 
         #ask the model for a response (system prompt is added here on every call but is not stored in messages)
-        response=client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}]+messages,tools=list(TOOLS.values()))
+        response=client.chat(model=MODEL,messages=[{"role": "system", "content": build_system_prompt()}]+messages,tools=list(TOOLS.values()))
 
         #save the LLM reply to the thread history
         messages.append(response.message)
