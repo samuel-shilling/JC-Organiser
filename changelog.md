@@ -8,8 +8,8 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [1.1.2] - 2026-10-21
 
 ### Changes
-- Changed (and tested) time window for schedule generation to be within 7 days of the first JC next month (instead of 5)
-- Changed (and tested) the daily workflow to occur at 4pm after JC (the morning reminders still run beforehand). Paired with the above change, this means that there should only be one month at a time in a schedule as generation does not occur until after the last JC of a month
+- Changed time window for schedule generation to be within 7 days of the first JC next month (instead of 5)
+- Changed the daily workflow to occur at 4pm after JC (the morning reminders still run beforehand). Paired with the above change, this means that there should only be one month at a time in a schedule as generation does not occur until after the last JC of a month
 
 
 ## [1.1.1] - 2026-10-21
