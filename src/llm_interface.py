@@ -31,12 +31,11 @@ AVAILABLE TOOLS
 
 2. remove_person
    Use when the user explicitly requests that a member be removed from
-   a particular role on a particular date, for example because they are
-   unavailable.
+   the schedule, for example because they are
+   unavailable. This only works for the speaker role so you do not need to ask for clarification on which role
 
 3. allocate_person
-   Use when the user explicitly requests that a member be assigned to
-   a particular role on a particular date.
+   Use when the user explicitly requests that a member be assigned as a speaker on a particular date. This only works for the speaker role so you do not need to ask for clarification on which role
 
 TOOL USAGE RULES
 
@@ -59,12 +58,11 @@ REQUIRED INFORMATION FOR CHANGES
 
 To remove or allocate a member, you need:
 - The member's full name.
-- The role: chair, co-chair, or speaker.
 - The journal club date.
 
 Resolve these details using the current conversation and schedule wherever
 possible. Do not ask the user to repeat information that is already
-unambiguous.
+unambiguous. The only role that can be changed is speaker.
 
 If any required detail remains ambiguous, ask a concise clarification
 question before calling the modification tool.
@@ -162,7 +160,7 @@ def show_schedule() -> str:
 
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
-def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
+def remove_person(removal_name: str, removal_date: str) -> str:
     """Remove a speaker from a journal club date in the provisional schedule. Good to use if someone is unavailable!
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned.
@@ -170,9 +168,11 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
 
     Args:
         removal_name: Full name as it appears in the schedule, with capitalised Forename and Surname
-        removal_role: Only "speaker" is supported (chairs cannot be removed)
         removal_date: The journal club date in YYYY-MM-DD format
     """
+    #hard coded for now as chairs cannot be changed yet due to saving into history quickly into the schedule whereas changes are only made to provisioanl
+    removal_role='speaker'
+
     #run the removal function, which will fail if the role is invalid (chairs not supported)
     try:
 
@@ -187,19 +187,21 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
         return(json.dumps({"ok": False,"message": str(e)}))
 
 
-def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
+def allocate_person(allocation_name: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
 
     Args:
         allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        allocation_role: Currently only supported for one role, the speaker
         allocation_date: Date in YYYY-MM-DD format.
 
     Returns:
         JSON with ok (true/false) and a message
     """
+    #hard coded for now as chairs cannot be changed yet due to saving into history quickly into the schedule whereas changes are only made to provisioanl
+    allocation_role='speaker'
+
     #run the allocation function, which will fail if the role is invalid (chairs not supported)
     try:
         #call the helper for the name matching first
