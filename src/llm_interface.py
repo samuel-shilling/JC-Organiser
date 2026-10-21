@@ -141,10 +141,9 @@ RESPONSE STYLE
 """
 
 def show_schedule() -> str:
-    """Show the upcoming provisional journal club schedule.
+    """Get the upcoming provisional journal club schedule, including this month's chair and co-chair.
 
-    Returns:
-        JSON with the upcoming date, name and role rows
+    The user cannot see this tool's output. Returns JSON where the "schedule" field is the finished Slack message. Paste it into your reply exactly as returned, without summarising or reformatting it.
     """
     provisional=get_provisional_schedule(root_path, "group")
     _, upcoming = filter_provisional_schedule(provisional)
@@ -152,16 +151,15 @@ def show_schedule() -> str:
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
-    """Remove a member from a role on a date in the provisional schedule.
-    Good to use if someone is unavailable!
+    """Remove a speaker from a journal club date in the provisional schedule. Good to use if someone is unavailable!
+
+    The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned.
+    If ok is false, explain the failure and do not claim anything changed.
 
     Args:
-        removal_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        removal_role: Currently only supported for one role, the speaker
+        removal_name: Full name as it appears in the schedule, with capitalised Forename and Surname
+        removal_role: Only "speaker" is supported (chairs cannot be removed)
         removal_date: The journal club date in YYYY-MM-DD format
-
-    Returns:
-        JSON with ok (true/false) and a message
     """
     #run the removal function, which will fail if the role is invalid (chairs not supported)
     try:
@@ -174,6 +172,8 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
 
 def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
+
+    The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
 
     Args:
         allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
