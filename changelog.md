@@ -21,6 +21,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - A bug in ```build_schedule_message_for_slack_bot``` where a dependency was not carried over to the call in ```run_daily```
 - A bug in ```format_schedule``` which meant chairs were not removed when looping through speakers (so chairs were printed twice)
+- Unusual edge case where the schedule is over two months (as the final date of last month has not yet passed and is therefore still provisional) so the chairs only show for the next month (chairs now show if the schedule rolls over two months)
 
 ## [0.2.0] alpha - 2026-10-20
 
