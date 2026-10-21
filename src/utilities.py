@@ -187,6 +187,10 @@ def format_schedule(df, title="*Upcoming journal club schedule:*"):
 #simple wrapper for format_schedule so that the slack bot posts in the same fashion as the LLM
 def build_schedule_message_for_slack_bot(root_path,title="*Upcoming journal club schedule:*"):
     """Return the formatted upcoming schedule (chairs included) as a string."""
+
+    #need to locally import these as this function is imported to a different file
+    from src.provisional_schedule import get_provisional_schedule, filter_provisional_schedule
+
     provisional=get_provisional_schedule(root_path, 'group')
     _, upcoming=filter_provisional_schedule(provisional)
     return(format_schedule(upcoming,title=title))
