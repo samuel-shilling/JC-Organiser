@@ -109,7 +109,7 @@ def on_message(event, say, logger):
 def start_scheduler():
     """Run the daily job every morning at 09:00, and once immediately on startup (catches up if the bot was off)."""
     scheduler=BackgroundScheduler()
-    scheduler.add_job(run_daily, "cron", hour=9, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
+    scheduler.add_job(run_daily, "cron", hour=7, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
     scheduler.start()
     return(scheduler)
 
@@ -133,7 +133,7 @@ def run_daily():
             upcoming, generated = daily_workflow()
  
         if generated and SLACK_CHANNEL_ID:
-            app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=format_schedule(upcoming,title="*New journal club schedule generated:*"))
+            app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=format_schedule(upcoming,title="*New journal club schedule automatically generated:*"))
     except Exception:
         logging.exception("Daily workflow failed")
 
