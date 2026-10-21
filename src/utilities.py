@@ -6,6 +6,7 @@ root_path=Path(__file__).parent.resolve().parents[0]
 
 #imports
 from src.config import *
+from src.provisional_schedule import *
 
 
 #top level function to retrieve all central data objects
@@ -143,29 +144,95 @@ def check_member(name, people):
 def format_schedule(df, title="*Upcoming journal club schedule:*"):
     """Turn a schedule dataframe (date, name, role) into a readable Slack message."""
     if df.empty:
-        return "No upcoming journal club sessions are scheduled yet."
-    lines = [title]
+        return("No upcoming journal club sessions are scheduled yet.")
+    lines=[title]
 
-    #if chair or co-chair are present in df then format these first and then remove from df
-    if 'chair' in df['role'].unique() and 'co-chair' in df['role'].unique():
+    #get core data objects (note history will contain lots of past dates)
+    _,history=data_retrieval(root_path,'group')
 
-        #select them
-        chairs = df[df['role'].isin(['chair', 'co-chair'])]
+    #format dates for processing
+    df=df.copy()
+    history=history.copy()
+    df['date']=pd.to_datetime(df['date'])
+    history['date']=pd.to_datetime(history['date'])
 
-        #format
-        for date, group in chairs.groupby("date"):
-            month=pd.to_datetime(date).strftime("%B")
-            people = ", ".join(f"{r['name']} ({r['role']})" for _, r in group.iterrows())
-            lines.append(f"- {month}: {people}")
-        
-        #Exclude chairs and co-chairs from the remaining dataframe
-        df = df[~df['role'].isin(['chair', 'co-chair'])]
+    #get the months (incase the schedule contains dates from previous month that are yet to pass)
+    months=df['date'].dt.to_period('M').unique()
 
-    #print the rest of the schedule
+    #get the chairs from df (provisional) and history, limited to those months (to prevent returning all chairs from all months)
+    chairs=pd.concat([df[df['role'].isin(['chair','co-chair'])], history[history['role'].isin(['chair','co-chair'])]])
+    chairs=chairs[chairs['date'].dt.to_period('M').isin(months)]
+    chairs=chairs.drop_duplicates(subset=['date', 'name', 'role'])
+
+    #one line per month, chair listed before co-chair
+    chairs['month']=chairs['date'].dt.to_period('M')
+    chairs['role_order']=chairs['role'].map({"chair": 0, "co-chair": 1})
+    chairs=chairs.sort_values(["month", "role_order"])
+
+    #format the chair text
+    for month, group in chairs.groupby("month"):
+        people = ", ".join(f"{r['name']} ({r['role']})" for _, r in group.iterrows())
+        lines.append(f"- {month.strftime('%B')}: {people}")
+
+    #exclude chairs and co-chairs from the remaining schedule
+    df=df[~df['role'].isin(['chair','co-chair'])]
+
+    #format the rest of the schedule
     for date, group in df.groupby("date"):
         people = ", ".join(f"{r['name']} ({r['role']})" for _, r in group.iterrows())
-        lines.append(f"- {pd.to_datetime(date):%Y-%m-%d}: {people}")
-    return "\n".join(lines)
+        lines.append(f"- {date:%Y-%m-%d}: {people}")
+
+    return("\n".join(lines))
+
+#simple wrapper for format_schedule so that the slack bot posts in the same fashion as the LLM
+def build_schedule_message_for_slack_bot(root_path,title="*Upcoming journal club schedule:*"):
+    """Return the formatted upcoming schedule (chairs included) as a string."""
+
+    #need to locally import these as this function is imported to a different file
+    from src.provisional_schedule import get_provisional_schedule, filter_provisional_schedule
+
+    provisional=get_provisional_schedule(root_path, 'group')
+    _, upcoming=filter_provisional_schedule(provisional)
+    return(format_schedule(upcoming,title=title))
+
+
+import difflib
+
+
+#work out which full name the user means from a partial name like 'steve' or 'Megan' where the true names are capitalised i.e. 'steve -> Steve' and include surnames i.e. 'Megan -> Megan Smith'
+def resolve_member(name,root_path):
+    """Match a typed name against the member list and return the full name.
+
+    Raises ValueError if the name matches nobody or more than one person.
+    """
+
+    #get list of JC members
+    members=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,'group','group'))
+    typed=name.strip().lower()
+
+    #exact match on the full name (ignoring capitalisation)
+    exact=[m for m in members if m.lower()==typed]
+    if len(exact)==1:
+        return(exact[0])
+
+    #every word the user typed must be the start of a word in the member's name (so "meg" matches "Megan" and "Megan Smith")
+    typed_words=typed.split()
+    matches=[m for m in members if all(any(w.startswith(t) for w in m.lower().split()) for t in typed_words)]
+
+    #only one person fits so we know who they mean
+    if len(matches)==1:
+        return(matches[0])
+
+    #more than one person fits so the user has to say which
+    if len(matches)>1:
+        raise ValueError(f"'{name}' could be any of: {', '.join(matches)}. Ask the user which one they mean.")
+
+    #nobody fits so suggest the closest spellings if there are any (e.g. a typo)
+    close=difflib.get_close_matches(name, members, n=3, cutoff=0.6)
+    if close:
+        raise ValueError(f"No member called '{name}'. Closest matches: {', '.join(close)}.")
+    raise ValueError(f"No member called '{name}' in the group list.")
+
 
 # #outdated- simulate dummy data
 #if dummy, generate the data

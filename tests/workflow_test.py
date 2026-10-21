@@ -13,13 +13,15 @@ from src.utilities import *
 # Need robust and automated stability tests (and test the daily workflow runs when the generation criteria is true)
 # need to add a function to cancel a JC session (wrapped by LLM) and ensure this does not re-generate when the daily workflow is ran!
 # need to thoroughly docstring the code 
+# do test runs with new key parameters (different JC days, different number of speakers, etc.)
+# need to ensure the chairs and co-chairs in llm_interface.show_schedule are given for each month that there are speakers for (for example if at the end of Jan and there are 2 speakers left at the end of Jan and new schedule has been generated for Feb - make sure the chairs are shown for Jan as well as Feb)
 
 
 
 
 
 #which test to run? enter 'group' or 'dummy'
-WHICH='group'
+WHICH='dummy'
 
 #get core data objects
 people,history=data_retrieval(root_path,WHICH)

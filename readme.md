@@ -1,7 +1,7 @@
 # Journal Club automatic scheduling algorithm
 
 ## Main features
-1. A Python algorithm which fairly and deterministically generates a provisioanl JC schedule each month, removes people from the schedule if unavailable, and allocates people who volunteer (to replace someone who is unavailable for example)
+1. A Python algorithm which fairly and deterministically generates a provisional JC schedule each month, removes people from the schedule if unavailable, and allocates people who volunteer (to replace someone who is unavailable for example)
 
 2. A wrapper for an LLM which acts as an interface between users (JC members) and the Python algorithm. This interprets users messages and is programmed to run the corresponding function on their behalf
 

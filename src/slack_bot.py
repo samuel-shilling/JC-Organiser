@@ -1,7 +1,8 @@
-import os, re, sys, threading, logging
+import os, re, sys, threading, logging, traceback
 import datetime as dt
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+root_path=Path(__file__).parent.resolve().parents[0]
 
 from dotenv import load_dotenv
 from slack_bolt import App
@@ -9,7 +10,9 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from src.llm_interface import ask_llm
 from src.main import daily_workflow
-from src.utilities import format_schedule
+from src.utilities import build_schedule_message_for_slack_bot
+
+
 
 #Load environment variables
 load_dotenv()
@@ -77,12 +80,13 @@ def handle(event, say, logger):
 
         say(text=answer, thread_ts=thread_ts)
 
-    except Exception:
-        logger.exception("Failed to process Slack message")
+    except Exception as e:
+        traceback.print_exc()
 
         #reset this thread's history
-        conversations.pop(conversation_key, None)  
-        say(text="Sorry, something went wrong processing your request (start diagnostics from line 83 in slack_bot.py).",thread_ts=thread_ts)
+        say(text="Sorry, something went wrong processing your request",thread_ts=thread_ts)
+        with llm_lock:
+            conversations.pop(conversation_key, None)
 
 
 #Handle messages that mention the bot in a channel
@@ -107,9 +111,9 @@ def on_message(event, say, logger):
 
 #set the time at which we want to run the daily workflow (see run_daily) and queue the job
 def start_scheduler():
-    """Run the daily job every morning at 09:00, and once immediately on startup (catches up if the bot was off)."""
+    """Run the daily job every morning at 07:00, and once immediately on startup (catches up if the bot was off)."""
     scheduler=BackgroundScheduler()
-    scheduler.add_job(run_daily, "cron", hour=9, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
+    scheduler.add_job(run_daily, "cron", hour=7, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
     scheduler.start()
     return(scheduler)
 
@@ -131,9 +135,16 @@ def run_daily():
         #same lock as the chat handler, so the csv files are never edited by two things at once
         with llm_lock:
             upcoming, generated = daily_workflow()
- 
+
+        #set to none
+        message=None
+
         if generated and SLACK_CHANNEL_ID:
-            app.client.chat_postMessage(channel=SLACK_CHANNEL_ID, text=format_schedule(upcoming,title="*New journal club schedule generated:*"))
+                message=build_schedule_message_for_slack_bot(root_path,title="*New journal club schedule automatically generated:*")
+
+        if message:
+            print(message)
+            post_to_channel(message)
     except Exception:
         logging.exception("Daily workflow failed")
 

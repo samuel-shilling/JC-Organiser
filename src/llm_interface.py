@@ -31,12 +31,11 @@ AVAILABLE TOOLS
 
 2. remove_person
    Use when the user explicitly requests that a member be removed from
-   a particular role on a particular date, for example because they are
-   unavailable.
+   the schedule, for example because they are
+   unavailable. This only works for the speaker role so you do not need to ask for clarification on which role
 
 3. allocate_person
-   Use when the user explicitly requests that a member be assigned to
-   a particular role on a particular date.
+   Use when the user explicitly requests that a member be assigned as a speaker on a particular date. This only works for the speaker role so you do not need to ask for clarification on which role
 
 TOOL USAGE RULES
 
@@ -59,12 +58,11 @@ REQUIRED INFORMATION FOR CHANGES
 
 To remove or allocate a member, you need:
 - The member's full name.
-- The role: chair, co-chair, or speaker.
 - The journal club date.
 
 Resolve these details using the current conversation and schedule wherever
 possible. Do not ask the user to repeat information that is already
-unambiguous.
+unambiguous. The only role that can be changed is speaker.
 
 If any required detail remains ambiguous, ask a concise clarification
 question before calling the modification tool.
@@ -76,8 +74,20 @@ NAMES AND ROLES
 - Do not invent names or assume that two similar names refer to the
   same person.
 - Valid roles are chair, co-chair, and speaker.
+- The tools look names up in the group list, so pass the name exactly as
+  the user typed it (a first name alone is fine). Do not ask the user for
+  a full name and do not guess a surname, unless a tool says a name is ambiguous or not found, relay that message and ask the user to clarify.
 - If a role is unclear and cannot be resolved from context, ask for
   clarification.
+- Every user message starts with the sender's name in square brackets,
+  for example "[John Smith]: I am not available".
+- When the user says "I", "me", "my" or "myself" (for example "I am not
+  available" or "put me down for the 12th"), the member is the sender. So
+  use the name in the brackets as the member name. Never ask the user
+  for their own name
+- The bracketed name is not part of what the user typed. Do not repeat it
+  in your replies.
+
 
 DATES
 
@@ -124,8 +134,8 @@ of the first session of the next month
 when required, normally near the end of the month.
 - You cannot trigger this workflow manually. Do not attempt to run it
 using another tool. And do not say you are capable of doing so.
-- If asked about future provisional schedules, explain that these are generated
-automatically 5 days before the first JC session of the new month so may not exist yet
+- The slack bot will post this provisional schedule automatically once it has been generated, and you will then be able to interact with it as usual whenever users request that you do so
+- If asked about future provisional schedules, explain that these are generated automatically 5 days before the first JC session of the new month so may not exist yet and will be posted automatically by the Slack bot
 - Do not claim a new schedule has been generated unless you have
 confirmation that the automated workflow completed successfully.
 
@@ -141,47 +151,35 @@ RESPONSE STYLE
 """
 
 def show_schedule() -> str:
-    """Show the upcoming provisional journal club schedule.
+    """Get the upcoming provisional journal club schedule, including this month's chair and co-chair.
 
-    Returns:
-        JSON with the upcoming date, name and role rows
+    The user cannot see this tool's output. Returns JSON where the "schedule" field is the finished Slack message. Paste it into your reply exactly as returned, without summarising or reformatting it.
     """
     provisional=get_provisional_schedule(root_path, "group")
     _, upcoming = filter_provisional_schedule(provisional)
 
-    #format the dates
-    #upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
-
-    #get the chairs (they are saved for the first JC of each month so they may not be in the upcoming file)
-    if len(upcoming)>0 and 'chair' not in upcoming['role'].unique() and 'co-chair' not in upcoming['role'].unique():
-
-        #get core data objects (note history will contain lots of past dates)
-        _,history=data_retrieval(root_path,'group')
-
-        #select the most recent chair and co-chairs
-        chair_rows=history[history['role'].isin(['chair','co-chair'])]
-        current_chairs=chair_rows[chair_rows['date']==chair_rows['date'].max()]
-
-        #merge with upcoming (remaining talks)
-        upcoming=pd.concat((upcoming,current_chairs))
-
-
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
-def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
-    """Remove a member from a role on a date in the provisional schedule.
-    Good to use if someone is unavailable!
+def remove_person(removal_name: str, removal_date: str) -> str:
+    """Remove a speaker from a journal club date in the provisional schedule. Good to use if someone is unavailable!
+
+    The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned.
+    If ok is false, explain the failure and do not claim anything changed.
 
     Args:
-        removal_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        removal_role: Currently only supported for one role, the speaker
+        removal_name: Full name as it appears in the schedule, with capitalised Forename and Surname
         removal_date: The journal club date in YYYY-MM-DD format
-
-    Returns:
-        JSON with ok (true/false) and a message
     """
+    #hard coded for now as chairs cannot be changed yet due to saving into history quickly into the schedule whereas changes are only made to provisioanl
+    removal_role='speaker'
+
     #run the removal function, which will fail if the role is invalid (chairs not supported)
     try:
+
+        #call the helper for the name matching first
+        removal_name=resolve_member(removal_name,root_path)
+
+        #run the function (which also checks the name again - slightly circular but doesnt matter)
         upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
         return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": format_schedule(upcoming)}))
     except Exception as e:
@@ -189,19 +187,27 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
         return(json.dumps({"ok": False,"message": str(e)}))
 
 
-def allocate_person(allocation_name: str, allocation_role: str, allocation_date: str) -> str:
+def allocate_person(allocation_name: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
+
+    The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
 
     Args:
         allocation_name: Full name of the member as it appears in the schedule with capitalised first characters on Forename and Surname
-        allocation_role: Currently only supported for one role, the speaker
         allocation_date: Date in YYYY-MM-DD format.
 
     Returns:
         JSON with ok (true/false) and a message
     """
+    #hard coded for now as chairs cannot be changed yet due to saving into history quickly into the schedule whereas changes are only made to provisioanl
+    allocation_role='speaker'
+
     #run the allocation function, which will fail if the role is invalid (chairs not supported)
     try:
+        #call the helper for the name matching first
+        allocation_name=resolve_member(allocation_name,root_path)
+
+        #run the function (which also checks the name again - slightly circular but doesnt matter)
         upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
         return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": format_schedule(upcoming)}))
     except Exception as e:
@@ -212,20 +218,65 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
 
+
+#chat messages and prompts passed here (improved version which does not reply on the LLM to copy the function outputs, instead the function outputs which are structured are pasted directly and the llm only responds otherwise)
 def ask_llm(messages, max_steps=5):
     """messages: per-thread list of chat messages (system prompt added here)."""
+
+    #isolate messages individually in loops
     for _ in range(max_steps):
-        response = client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}] + messages,tools=list(TOOLS.values()))
+
+        #ask the model for a response (system prompt is added here on every call but is not stored in messages)
+        response=client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}]+messages,tools=list(TOOLS.values()))
+
+        #save the LLM reply to the thread history
         messages.append(response.message)
+
+        #if the model didn't ask for any tools then it has just answered in text (e.g. a clarification question) so we are done
         if not response.message.tool_calls:
-            return response.message.content
+            return(response.message.content)
+
+        #this will hold the finished message if a tool succeeds and returns a schedule 
+        direct_reply=None
+
+        #run each tool the model asked for
         for call in response.message.tool_calls:
+
+            #call the matching python function from TOOLS with the arguments the model gave
             try:
                 result=TOOLS[call.function.name](**call.function.arguments)
+
+            #if the tool crashes, turn the error into an ok=false result so the model still gets told what happened
             except Exception as e:
                 traceback.print_exc()
                 result=json.dumps({"ok": False,"message": str(e)})
+
+            #give the result back to the model as a tool message (this is how it learns what happened if it gets another turn)
             messages.append({"role": "tool", "tool_name": call.function.name, "content": str(result)})
+
+            #convert the json string back into a dictionary so we can check it
+            try:
+                data=json.loads(result)
+
+            #if the result isn't valid json then skip the shortcut for this tool call
+            except (TypeError, ValueError):
+                continue
+
+            #if the tool succeeded and returned a schedule then build the reply ourselves instead of trusting the model to copy it
+            #(remove/allocate return a message and a schedule, show_schedule only returns a schedule so the message is dropped by filter(None,...))
+            if data.get("ok") and data.get("schedule"):
+                direct_reply="\n\n".join(filter(None,[data.get("message"),data["schedule"]]))
+
+        #if we built a reply then return it straight away so the model never writes the final message
+        if direct_reply:
+
+            #save what the user actually saw to the history, otherwise the thread would end on a tool result and confuse the model next turn
+            messages.append({"role": "assistant", "content": direct_reply})
+            return(direct_reply)
+
+        #if we get here a tool failed (ok=false) so there is no schedule so direct_reply is None, the loop goes round until client.chat which will see the full message list (including the error in the tool message), this will prompt the model (as ok=false) to explain the failure message 
+
+    #if all the steps are used up without an answer then give up
     return("Sorry, I couldn't complete that request.")
 
 if __name__ == "__main__":
