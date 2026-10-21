@@ -114,6 +114,12 @@ def start_scheduler():
     """Run the daily job every morning at 07:00, and once immediately on startup (catches up if the bot was off)."""
     scheduler=BackgroundScheduler()
     scheduler.add_job(run_daily, "cron", hour=7, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
+
+    #add scheduled reminders
+    #JC-day reminders (run_reminder does nothing if there is no JC today)
+    scheduler.add_job(run_reminder, "cron", hour=10, minute=30, args=["*JC is today at 15:00.*"], id="reminder_morning", coalesce=True, misfire_grace_time=3*3600)
+    scheduler.add_job(run_reminder, "cron", hour=14, minute=0, args=["*JC starts in 1 hour.*"], id="reminder_one_hour", coalesce=True, misfire_grace_time=15*60)
+    scheduler.add_job(run_reminder, "cron", hour=15, minute=0, args=["*JC is starting now!*"], id="reminder_start", coalesce=True, misfire_grace_time=5*60)
     scheduler.start()
     return(scheduler)
 
@@ -146,7 +152,27 @@ def run_daily():
             print(message)
             post_to_channel(message)
     except Exception:
-        logging.exception("Daily workflow failed")
+        logging.exception("Daily workflow failed (see run_daily)")
+
+
+#programming a reminder JC message at 10:30 on the day of a JC meeting, and then 1 hour before and then at 15:00
+#set the time at which we want to run the daily workflow (see run_daily) and queue the job
+def run_reminder(message):
+    """Post a JC reminder with today's roles, if there is a JC today."""
+    try:
+        with llm_lock:
+            upcoming, _ = daily_workflow()
+
+        today = upcoming[upcoming["date"].dt.date == dt.date.today()]
+        if today.empty:
+            return
+
+        #only crudely structure the output for now (in future could call a formatting function to do this)
+        names="\n".join(f"- {r.name}" for r in today.itertuples())
+        message=f"{message}\nSpeakers for today:\n{names}"
+        post_to_channel(message)
+    except Exception:
+        logging.exception("JC reminder failed (see run_reminder)")
 
 
 if __name__ == "__main__":
