@@ -12,8 +12,6 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Changes to ```INSTRUCTIONS``` in ```ask_llm``` which better utilise the name allocation functions
 - Changed daily workflow to occur at 07:00 instead of 09:00 so that new schedule is generated before most people open Slack
 
-### Fixed
-- Typos to readme
 
 ## [0.3.0] alpha - 2026-10-21
 
