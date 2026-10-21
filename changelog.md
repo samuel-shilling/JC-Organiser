@@ -10,6 +10,9 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changes
 - LLM instructions updated to improved responses regarding future schedules
+- LLM instructions updated for differentiating between adding new people to JC itself and adding someone as a speaker, same for removing people
+- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the above point is more clear
+- Added prompt instructions for explaining to members how to add or remove JC members from JC itself as this must be done manually by the person who locally hosts the project files
 
 
 
