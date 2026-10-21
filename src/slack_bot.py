@@ -113,13 +113,18 @@ def on_message(event, say, logger):
 def start_scheduler():
     """Run the daily job every morning at 07:00, and once immediately on startup (catches up if the bot was off)."""
     scheduler=BackgroundScheduler()
-    scheduler.add_job(run_daily, "cron", hour=7, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
 
     #add scheduled reminders
     #JC-day reminders (run_reminder does nothing if there is no JC today)
     scheduler.add_job(run_reminder, "cron", hour=10, minute=30, args=["*JC is today at 15:00.*"], id="reminder_morning", coalesce=True, misfire_grace_time=3*3600)
     scheduler.add_job(run_reminder, "cron", hour=14, minute=0, args=["*JC starts in 1 hour.*"], id="reminder_one_hour", coalesce=True, misfire_grace_time=15*60)
     scheduler.add_job(run_reminder, "cron", hour=15, minute=0, args=["*JC is starting now!*"], id="reminder_start", coalesce=True, misfire_grace_time=5*60)
+
+    #moved the daily workflow (new schedule generation to occur just after a JC session)
+    #I also changed config.py to occur at 7 days before the first JC of next month
+    #This means it should only generate a schedule 7 days before the first JC of next month, once all JC sessions are finished
+    scheduler.add_job(run_daily, "cron", hour=16, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
+    
     scheduler.start()
     return(scheduler)
 

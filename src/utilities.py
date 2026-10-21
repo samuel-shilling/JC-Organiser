@@ -127,7 +127,7 @@ def clean_date(date):
         date=pd.Timestamp(date).normalize()
     except Exception:
         raise ValueError("'{}' is not a valid date (use YYYY-MM-DD).".format(date))
-    if date.weekday()!=JC_DAYS:
+    if date.day_name()!=JC_DAYS:
         raise ValueError("{} is a {}, but journal club only runs on: {}.".format(date.date(), date.day_name(), JC_DAYS))
     return(date)
 
