@@ -76,8 +76,20 @@ NAMES AND ROLES
 - Do not invent names or assume that two similar names refer to the
   same person.
 - Valid roles are chair, co-chair, and speaker.
+- The tools look names up in the group list, so pass the name exactly as
+  the user typed it (a first name alone is fine). Do not ask the user for
+  a full name and do not guess a surname, unless a tool says a name is ambiguous or not found, relay that message and ask the user to clarify.
 - If a role is unclear and cannot be resolved from context, ask for
   clarification.
+- Every user message starts with the sender's name in square brackets,
+  for example "[John Smith]: I am not available".
+- When the user says "I", "me", "my" or "myself" (for example "I am not
+  available" or "put me down for the 12th"), the member is the sender. So
+  use the name in the brackets as the member name. Never ask the user
+  for their own name
+- The bracketed name is not part of what the user typed. Do not repeat it
+  in your replies.
+
 
 DATES
 
@@ -163,6 +175,11 @@ def remove_person(removal_name: str, removal_role: str, removal_date: str) -> st
     """
     #run the removal function, which will fail if the role is invalid (chairs not supported)
     try:
+
+        #call the helper for the name matching first
+        removal_name=resolve_member(removal_name,root_path)
+
+        #run the function (which also checks the name again - slightly circular but doesnt matter)
         upcoming=main_revisions_removal(removal_name,removal_role,removal_date)
         return(json.dumps({"ok": True,"message": f"Removed {removal_name} from {removal_role} on {removal_date}.","schedule": format_schedule(upcoming)}))
     except Exception as e:
@@ -185,6 +202,10 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
     """
     #run the allocation function, which will fail if the role is invalid (chairs not supported)
     try:
+        #call the helper for the name matching first
+        allocation_name=resolve_member(allocation_name,root_path)
+
+        #run the function (which also checks the name again - slightly circular but doesnt matter)
         upcoming=main_revisions_allocation(allocation_name,allocation_role,allocation_date)
         return(json.dumps({"ok": True,"message": f"Allocated {allocation_name} as {allocation_role} on {allocation_date}.","schedule": format_schedule(upcoming)}))
     except Exception as e:

@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file and dates are fo
 This changelog roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] alpha - 2026-10-21
+
+### Added
+- Name matching functions which helps the LLM connect peoples names to peoples messages (i.e. 'I am not available' = 'Forename Surname is not available')
+- ```utilities.build_schedule_message_for_slack_bot``` which is a wrapper of ```format_schedule``` and is accecssible to the slack bot (previously only the LLM can access formatted data output)
+
+### Changed
+- ```run_daily``` now calls the new ```build_schedule_message_for_slack_bot``` from ```utilities.py``` in order to structure the schedule message in a similar fashion to how the LLM does (via ```format_schedule```)
+- ```ask_llm``` modified so that the LLM does not interpret function outputs, which are already structured, and it will return the function output directly. The LLM will only produce a reply if there is no viable function output (i.e. ask for more information)
+- Improved traceback messages on errors
+
+### Fixed
+- A bug in ```build_schedule_message_for_slack_bot``` where a dependency was not carried over to the call in ```run_daily```
+
 ## [0.2.0] alpha - 2026-10-20
 
 ### Added

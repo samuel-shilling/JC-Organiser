@@ -195,6 +195,45 @@ def build_schedule_message_for_slack_bot(root_path,title="*Upcoming journal club
     _, upcoming=filter_provisional_schedule(provisional)
     return(format_schedule(upcoming,title=title))
 
+
+import difflib
+
+
+#work out which full name the user means from a partial name like 'steve' or 'Megan' where the true names are capitalised i.e. 'steve -> Steve' and include surnames i.e. 'Megan -> Megan Smith'
+def resolve_member(name,root_path):
+    """Match a typed name against the member list and return the full name.
+
+    Raises ValueError if the name matches nobody or more than one person.
+    """
+
+    #get list of JC members
+    members=get_current_JC_members('{}/data/{}/{}_names.csv'.format(root_path,'group','group'))
+    typed=name.strip().lower()
+
+    #exact match on the full name (ignoring capitalisation)
+    exact=[m for m in members if m.lower()==typed]
+    if len(exact)==1:
+        return(exact[0])
+
+    #every word the user typed must be the start of a word in the member's name (so "meg" matches "Megan" and "Megan Smith")
+    typed_words=typed.split()
+    matches=[m for m in members if all(any(w.startswith(t) for w in m.lower().split()) for t in typed_words)]
+
+    #only one person fits so we know who they mean
+    if len(matches)==1:
+        return(matches[0])
+
+    #more than one person fits so the user has to say which
+    if len(matches)>1:
+        raise ValueError(f"'{name}' could be any of: {', '.join(matches)}. Ask the user which one they mean.")
+
+    #nobody fits so suggest the closest spellings if there are any (e.g. a typo)
+    close=difflib.get_close_matches(name, members, n=3, cutoff=0.6)
+    if close:
+        raise ValueError(f"No member called '{name}'. Closest matches: {', '.join(close)}.")
+    raise ValueError(f"No member called '{name}' in the group list.")
+
+
 # #outdated- simulate dummy data
 #if dummy, generate the data
 # if WHICH!='group':
