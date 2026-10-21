@@ -167,8 +167,10 @@ def run_reminder(message):
         if today.empty:
             return
 
-        roles = "\n".join(f"• *{r.role}:* {r.name}" for r in today.itertuples())
-        post_to_channel(f"{message}\n{roles}")
+        #only crudely structure the output for now (in future could call a formatting function to do this)
+        names="\n".join(f"- {r.name}" for r in today.itertuples())
+        message=f"{message}\nSpeakers for today:\n{names}"
+        post_to_channel(message)
     except Exception:
         logging.exception("JC reminder failed (see run_reminder)")
 
