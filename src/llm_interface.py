@@ -149,23 +149,6 @@ def show_schedule() -> str:
     provisional=get_provisional_schedule(root_path, "group")
     _, upcoming = filter_provisional_schedule(provisional)
 
-    #format the dates
-    #upcoming["date"]=upcoming["date"].dt.strftime("%Y-%m-%d")
-
-    #get the chairs (they are saved for the first JC of each month so they may not be in the upcoming file)
-    if len(upcoming)>0 and 'chair' not in upcoming['role'].unique() and 'co-chair' not in upcoming['role'].unique():
-
-        #get core data objects (note history will contain lots of past dates)
-        _,history=data_retrieval(root_path,'group')
-
-        #select the most recent chair and co-chairs
-        chair_rows=history[history['role'].isin(['chair','co-chair'])]
-        current_chairs=chair_rows[chair_rows['date']==chair_rows['date'].max()]
-
-        #merge with upcoming (remaining talks)
-        upcoming=pd.concat((upcoming,current_chairs))
-
-
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
 def remove_person(removal_name: str, removal_role: str, removal_date: str) -> str:
