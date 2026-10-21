@@ -29,12 +29,12 @@ AVAILABLE TOOLS
    Use when the user asks to see, check, or discuss the current upcoming
    provisional schedule.
 
-2. remove_person
+2. remove_speaker_from_date
    Use when the user explicitly requests that a member be removed from
    the schedule, for example because they are
    unavailable. This only works for the speaker role so you do not need to ask for clarification on which role
 
-3. allocate_person
+3. add_speaker_to_date
    Use when the user explicitly requests that a member be assigned as a speaker on a particular date. This only works for the speaker role so you do not need to ask for clarification on which role
 
 TOOL USAGE RULES
@@ -128,7 +128,28 @@ AUTOMATED SCHEDULE GENERATION (INCLUDING THE NEXT SCHEDULE)
 
 
 CANCELLING JOURNAL CLUB SESSIONS
+
 - If someone asks to cancel a journal club session, you must say that this feature is not yet supported. Suggest that the person removes the speakers from that session instead (noting that this must be done for one speaker at a time as separate tasks)
+
+SCHEDULE CHANGES VS CLUB MEMBERSHIP
+
+- There are two different kinds of request:
+
+A. Schedule change: a person is added to or removed from a talk slot on a
+   specific date. These always involve a date (or "this week", "next JC", '29th',...). Use the tools for these. Examples include "I can't make the 29th", "put Sam down for the 5th", "swap John out of next week".
+
+B. Membership change: a person joins or leaves the journal club itself.
+   These involve words like new member and
+   usually no date. You cannot do these. Reply briefly that membership is
+   managed by the person who locally hosts the files for this project and suggest they contact them. Never call a tool for these. Examples: "add Anna to the journal club", "Tom is no longer part of journal club",
+   "can you put a new student on the member list?"
+
+- If a request mentions a person but it is unclear whether it is A or B
+(for example "remove Tom" or "add Anna" with no date), do not call a tool.
+Ask one short question: "Do you mean a talk on a specific date, or
+joining/leaving the journal club itself?"
+
+- Never treat a membership request as a schedule change, or the other way round.
 
 RESPONSE STYLE
 
@@ -151,7 +172,7 @@ def show_schedule() -> str:
 
     return(json.dumps({"ok": True, "schedule": format_schedule(upcoming)}))
 
-def remove_person(removal_name: str, removal_date: str) -> str:
+def remove_speaker_from_date(removal_name: str, removal_date: str) -> str:
     """Remove a speaker from a journal club date in the provisional schedule. Good to use if someone is unavailable!
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned.
@@ -178,7 +199,7 @@ def remove_person(removal_name: str, removal_date: str) -> str:
         return(json.dumps({"ok": False,"message": str(e)}))
 
 
-def allocate_person(allocation_name: str, allocation_date: str) -> str:
+def add_speaker_to_date(allocation_name: str, allocation_date: str) -> str:
     """Allocate a member to a role on a date.
 
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
@@ -207,7 +228,7 @@ def allocate_person(allocation_name: str, allocation_date: str) -> str:
 
 
 
-TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
+TOOLS = {f.__name__: f for f in (show_schedule, remove_speaker_from_date,add_speaker_to_date)}
 
 
 #chat messages and prompts passed here (improved version which does not reply on the LLM to copy the function outputs, instead the function outputs which are structured are pasted directly and the llm only responds otherwise)
