@@ -94,8 +94,10 @@ DATES
   the schedule, and relevant conversation context.
 - For example, "the 8th" may refer to the 8th of the month established
   by the current schedule or conversation.
-- Do not guess the month or year if multiple interpretations remain
-  plausible.
+- If the user gives only a day number or a weekday ("the 29th", "next
+  Thursday"), match it to one of the upcoming JC dates in CURRENT CONTEXT.
+  Do not ask for the month or year when exactly one of them fits. Only ask
+  if none or more than one fits.
 - Resolve dates already established in the conversation without asking
   the user to repeat them.
 - Do not confuse the date of a journal club meeting with the date on
@@ -230,6 +232,13 @@ def add_speaker_to_date(allocation_name: str, allocation_date: str) -> str:
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_speaker_from_date,add_speaker_to_date)}
 
+#a function that wraps the prompt instructions and also adds the scheduled JC dates and todays JC dates to the prompt so the LLM does not get confused about dates and ask for clarificatoin when it is obvious what date someone might mean
+def build_system_prompt():
+    """Instructions plus today's date and the next few JC dates (so 'the 29th' always resolves)."""
+    today=pd.Timestamp.today().normalize()
+    days=pd.date_range(today,periods=60,freq='D')
+    jc_dates=[d.strftime('%Y-%m-%d') for d in days if d.day_name()==JC_DAYS][:8]
+    return(INSTRUCTIONS+f"\n\nCURRENT CONTEXT\n- Today is {today:%A %Y-%m-%d}.\n- Journal club is held on {JC_DAYS}s. Upcoming JC dates: {', '.join(jc_dates)}.\n")
 
 #chat messages and prompts passed here (improved version which does not reply on the LLM to copy the function outputs, instead the function outputs which are structured are pasted directly and the llm only responds otherwise)
 def ask_llm(messages, max_steps=5):
@@ -239,7 +248,7 @@ def ask_llm(messages, max_steps=5):
     for _ in range(max_steps):
 
         #ask the model for a response (system prompt is added here on every call but is not stored in messages)
-        response=client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}]+messages,tools=list(TOOLS.values()))
+        response=client.chat(model=MODEL,messages=[{"role": "system", "content": build_system_prompt()}]+messages,tools=list(TOOLS.values()))
 
         #save the LLM reply to the thread history
         messages.append(response.message)

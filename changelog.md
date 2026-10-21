@@ -8,11 +8,14 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.1] - 2026-10-21
 
+### Added
+- ```build_system_prompt``` a wrapper for the prompt instructions
+which also appends todays date and the dates of the upcoming JC sessions s the LLM is aware of dates and does not annoyingly ask for date clarification when it is obvious
+
+
 ### Changes
-- LLM instructions updated to improved responses regarding future schedules
-- LLM instructions updated for differentiating between adding new people to JC itself and adding someone as a speaker, same for removing people
-- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the above point is more clear
-- Added prompt instructions for explaining to members how to add or remove JC members from JC itself as this must be done manually by the person who locally hosts the project files
+- LLM instructions updated to improved responses regarding future schedules, for differentiating between adding new people to JC itself and adding someone as a speaker (same for removing people), to instruct people on how to add/remove people from JC itself (if requested)
+- Renamed the ```remove_person``` and ```allocate_person``` to ```remove_speaker_from_date``` and ```add_speaker_to_date``` to ensure the above differentiation is more clear
 
 
 
