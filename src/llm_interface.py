@@ -195,20 +195,65 @@ def allocate_person(allocation_name: str, allocation_role: str, allocation_date:
 
 TOOLS = {f.__name__: f for f in (show_schedule, remove_person,allocate_person)}
 
+
+#chat messages and prompts passed here (improved version which does not reply on the LLM to copy the function outputs, instead the function outputs which are structured are pasted directly and the llm only responds otherwise)
 def ask_llm(messages, max_steps=5):
     """messages: per-thread list of chat messages (system prompt added here)."""
+
+    #isolate messages individually in loops
     for _ in range(max_steps):
-        response = client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}] + messages,tools=list(TOOLS.values()))
+
+        #ask the model for a response (system prompt is added here on every call but is not stored in messages)
+        response=client.chat(model=MODEL,messages=[{"role": "system", "content": INSTRUCTIONS}]+messages,tools=list(TOOLS.values()))
+
+        #save the LLM reply to the thread history
         messages.append(response.message)
+
+        #if the model didn't ask for any tools then it has just answered in text (e.g. a clarification question) so we are done
         if not response.message.tool_calls:
-            return response.message.content
+            return(response.message.content)
+
+        #this will hold the finished message if a tool succeeds and returns a schedule 
+        direct_reply=None
+
+        #run each tool the model asked for
         for call in response.message.tool_calls:
+
+            #call the matching python function from TOOLS with the arguments the model gave
             try:
                 result=TOOLS[call.function.name](**call.function.arguments)
+
+            #if the tool crashes, turn the error into an ok=false result so the model still gets told what happened
             except Exception as e:
                 traceback.print_exc()
                 result=json.dumps({"ok": False,"message": str(e)})
+
+            #give the result back to the model as a tool message (this is how it learns what happened if it gets another turn)
             messages.append({"role": "tool", "tool_name": call.function.name, "content": str(result)})
+
+            #convert the json string back into a dictionary so we can check it
+            try:
+                data=json.loads(result)
+
+            #if the result isn't valid json then skip the shortcut for this tool call
+            except (TypeError, ValueError):
+                continue
+
+            #if the tool succeeded and returned a schedule then build the reply ourselves instead of trusting the model to copy it
+            #(remove/allocate return a message and a schedule, show_schedule only returns a schedule so the message is dropped by filter(None,...))
+            if data.get("ok") and data.get("schedule"):
+                direct_reply="\n\n".join(filter(None,[data.get("message"),data["schedule"]]))
+
+        #if we built a reply then return it straight away so the model never writes the final message
+        if direct_reply:
+
+            #save what the user actually saw to the history, otherwise the thread would end on a tool result and confuse the model next turn
+            messages.append({"role": "assistant", "content": direct_reply})
+            return(direct_reply)
+
+        #if we get here a tool failed (ok=false) so there is no schedule so direct_reply is None, the loop goes round until client.chat which will see the full message list (including the error in the tool message), this will prompt the model (as ok=false) to explain the failure message 
+
+    #if all the steps are used up without an answer then give up
     return("Sorry, I couldn't complete that request.")
 
 if __name__ == "__main__":
