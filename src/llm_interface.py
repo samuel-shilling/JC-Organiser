@@ -188,7 +188,7 @@ def add_speaker_to_date(allocation_name: str, allocation_date: str) -> str:
     The user cannot see this tool's output. Returns JSON with ok, a message, and (if ok) the updated "schedule", which is the finished Slack message. Reply with the message, then paste the schedule exactly as returned. If ok is false, explain the failure and do not claim anything changed.
 
     Args:
-        allocation_name: The member's name exactly as the user typed it (e.g. "Melzie"). A first name alone is fine. Do not ask for a full name; the tool resolves it.
+        allocation_name: The member's name exactly as the user typed it (e.g. "Ben"). A first name alone is fine. Do not ask for a full name; the tool resolves it.
         allocation_date: Date in YYYY-MM-DD format.
 
     Returns:
