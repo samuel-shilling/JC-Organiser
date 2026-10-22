@@ -21,7 +21,7 @@ The plan for v2 is to implement a simplified design. See the planned design chan
 - Add proper in-built error messages on requiring group_names.csv and how to set this up (more user-friendly)
 
 3. Re-design the schedule generation function and tweak the daily workflow
-- problem: that the slack bot is the only way the next schedule can be generated (make this function more centralised)
+- problem: the slack bot is the only way the next schedule can be generated, which also means it cant be generated without slack (during local testing with python -m src.llm_interface for example) (make this function more centralised)
 - remove the inbuilt 7d condition from the function so it generates whenever it is called and instead place this condition in the daily workflow so the generation schedule is only called if needed
 - make it callable by users via the LLM (add as a tool) so schedules (outside the daily workflow) can be generated early if requested 
 
