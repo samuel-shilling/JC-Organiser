@@ -19,6 +19,8 @@ The plan for v2 is to implement a simplified design. See the planned design chan
 - Dependency on three .csv files is scrappy and not fully tested
 - Re-design file dependencies to only require group_names.csv, and if history doesn't exist it will be generated on the first run
 - Add proper in-built error messages on requiring group_names.csv and how to set this up (more user-friendly)
+- revise ```get_target_month_dates``` to return target dates for the target month **dependently** on the latest provisional dates! If there is no provisioanl schedule at the monent (i.e. halfway through the month or very start of a fresh month) it would read in an empty file, so it would return target dates for the month corresponding to the next set of JCs (most likely next month but could be the current month in edge cases). If provisional is complete (contains date for the current month), target dates will be given for the next month
+- NOTE, the above change also requires 7d condition to be moved outside the generation function as it needs to be callable at any time (see below changes)
 
 3. Re-design the schedule generation function and tweak the daily workflow
 - problem: the slack bot is the only way the next schedule can be generated, which also means it cant be generated without slack (during local testing with python -m src.llm_interface for example) (make this function more centralised)
