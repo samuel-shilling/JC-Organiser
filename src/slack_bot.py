@@ -123,6 +123,7 @@ def start_scheduler():
     #moved the daily workflow (new schedule generation to occur just after a JC session)
     #I also changed config.py to occur at 7 days before the first JC of next month
     #This means it should only generate a schedule 7 days before the first JC of next month, once all JC sessions are finished
+    #next_run_time equal to now ensures the daily workflow is run even if the bot was offline at the scheduled time
     scheduler.add_job(run_daily, "cron", hour=16, minute=0, id="daily_workflow",coalesce=True, misfire_grace_time=6*3600,next_run_time=dt.datetime.now())
     
     scheduler.start()
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     print(startup_message)
     post_to_channel(startup_message)
 
-    #run daily workflow
+    #set daily schedule
     start_scheduler()
 
     handler=SocketModeHandler(app, SLACK_APP_TOKEN)
