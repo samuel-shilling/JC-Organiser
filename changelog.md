@@ -11,13 +11,13 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Major changes (planned) for v2
 Although the latest v1 release works, the overall design is a little complex.
 The plan for v2 is to implement a simplified design. See the planned design changes below:
+
 1. Scrap the rolling provisional file and do everything in history.csv 
 - history will contain a new column called 'confirmed' which is just Y (once the date has passed) or N (if it is still provisional)
-- history can be filtered upon read-in (in the same way provisional is currently filtered) to separate past vs future dates (confirmed or not)
+- history can be filtered upon read-in (in the same way provisional is currently filtered) to separate past vs future dates (confirmed or not). Note, if I make chair allocation manual 
 
 2. Make the file dependencies more streamlined and well communicated
-- Dependency on three .csv files is scrappy and not fully tested
-- Re-design file dependencies to only require group_names.csv, and if history doesn't exist it will be generated on the first run
+- Dependency on three .csv files is scrappy and not fully tested. Need to re-design file dependencies to only require group_names.csv, and if history doesn't exist it will be generated on the first run
 - Add proper in-built error messages on requiring group_names.csv and how to set this up (more user-friendly)
 - revise ```get_target_month_dates``` to return target dates for the target month **dependently** on the latest provisional dates! If there is no provisioanl schedule at the monent (i.e. halfway through the month or very start of a fresh month) it would read in an empty file, so it would return target dates for the month corresponding to the next set of JCs (most likely next month but could be the current month in edge cases). If provisional is complete (contains date for the current month), target dates will be given for the next month
 - NOTE, the above change also requires 7d condition to be moved outside the generation function as it needs to be callable at any time (see below changes)
@@ -29,8 +29,17 @@ The plan for v2 is to implement a simplified design. See the planned design chan
 
 4. Improve overall script <-> user communication
 - Update the schedule generation script to print a message (whenever a new schedule is generated) reminding people how they can modify the schedule ('let me know if you are unavailable, but note someone will need to volunteer to replace you')
-- Re-design LLM instructions to better communicate what it can and can't do, especially when it is given a request that it cannot do (i.e. if someone asks it)
-- Add better date cleaning functions which are less dependent on the LLM (the same way I previously did for names by adding ```resolve_member```)
+- Make the slack bot tag users that it is talking to
+
+5. LLM interpretations
+- Re-design LLM instructions to ensure it only ever does ONE of the following: calls a function (response is then based on the boolean 'ok' output), or answer a question on what it can and can't do, or ask for more clarification if a question or request is ambiguous. It needs to understand people will only talk to it to make requests so it should always interpret messages by using function calls, or asking for more info. This should solve a strange case where you say to it 'Name is available on the 29th' and it will just acknowledge it but won't add that person or actually do anything.
+- Add better date cleaning functions which are less reliant on the LLM as it is not clever enough to infer dates all the time (see ```resolve_member```)
+
+6. Role allocations, future availability file, and polling
+- Chairs and co-chairs are actually carefully chosen each month. I should remove these from list of active roles and the role allocation functions. Instead, Julie (or someone) should be able to hand pick the chairs and co-chairs for the next months far in advance. This should be handled manually. Need to add functions to the LLM interface to do this. They would be stored in history (which will contain future dates and should be filtered by target_dates)
+- Can I make the bot do a poll for UNAVAILABILITIES for the upcoming month, which then is read into the fairness (compute_statistics) function to get the schedule allocations all sorted whilst considering unavailabilties (removing the need for lots of revisions afterwards)? This may require making an availability file that has columns for name and unavailable which is read in to the schedule generation and appends people to the ```already_chosen``` list for a specific date if they are in that file? A function to write unavabilities into this file (and remove them) would need to be callable by the LLM (and would need to be printable to slack similarly to ```show_schedule``` and would need to be mentioned if someone tries to allocate someone who is marked as unavailable but maybe forgot to remove this status)? 
+
+
 
 ### Major changes (completed) for v2
 
