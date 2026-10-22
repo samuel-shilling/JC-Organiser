@@ -5,6 +5,36 @@ All notable changes to this project are documented in this file and dates are fo
 This changelog roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [2.0] - yyyy-mm-dd
+
+### Major changes (planned) for v2
+Although the latest v1 release works, the overall design is a little complex.
+The plan for v2 is to implement a simplified design. See the planned design changes below:
+1. Scrap the rolling provisional file and do everything in history.csv 
+- history will contain a new column called 'confirmed' which is just Y (once the date has passed) or N (if it is still provisional)
+- history can be filtered upon read-in (in the same way provisional is currently filtered) to separate past vs future dates (confirmed or not)
+
+2. Make the file dependencies more streamlined and well communicated
+- Dependency on three .csv files is scrappy and not fully tested
+- Re-design file dependencies to only require group_names.csv, and if history doesn't exist it will be generated on the first run
+- Add proper in-built error messages on requiring group_names.csv and how to set this up (more user-friendly)
+
+3. Re-design the schedule generation function and tweak the daily workflow
+- problem: that the slack bot is the only way the next schedule can be generated (make this function more centralised)
+- remove the inbuilt 7d condition from the function so it generates whenever it is called and instead place this condition in the daily workflow so the generation schedule is only called if needed
+- make it callable by users via the LLM (add as a tool) so schedules (outside the daily workflow) can be generated early if requested 
+
+4. Improve overall script <-> user communication
+- Update the schedule generation script to print a message (whenever a new schedule is generated) reminding people how they can modify the schedule ('let me know if you are unavailable, but note someone will need to volunteer to replace you')
+- Re-design LLM instructions to better communicate what it can and can't do, especially when it is given a request that it cannot do (i.e. if someone asks it)
+- Add better date cleaning functions which are less dependent on the LLM (the same way I previously did for names by adding ```resolve_member```)
+
+### Major changes (completed) for v2
+
+
+
+
 ## [1.1.2] - 2026-10-21
 
 ### Changes
