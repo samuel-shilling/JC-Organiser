@@ -18,7 +18,4 @@ JC_DAYS='Thursday'
 COLUMNS=['date','name','role']
 ROLES=['chair','co-chair','speaker']
 NUM_OF_SPEAKERS=2
-WINDOW_DAYS=5
-
-
-
+WINDOW_DAYS=7

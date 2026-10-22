@@ -27,35 +27,14 @@ def get_provisional_schedule(root_path,WHICH):
 
     return(df)
 
-# #separate the current provisional schedule by dates which have passed and have not passed
-# def filter_provisional_schedule(provisional,meeting_dates_this_month,meeting_dates_next_month):
-
-#     #get todays date
-#     today=pd.Timestamp.today().normalize()
-
-#     #get the dates remaining this month
-#     remaining_dates=[d for d in meeting_dates_this_month if d>=today]
-
-#     #select only the confirmed dates (that have already passed)
-#     df_confirmed_current_month=provisional[provisional['date'] < today]
-#     #df_confirmed_current_month=provisional[~provisional['date'].isin(remaining_dates)]
-
-#     #select remaining dates for this month
-#     df_remaining_current_month=provisional[provisional['date'].isin(remaining_dates)]
-
-#     #select remaining dates for next month
-#     df_remaining_next_month=provisional[provisional['date'].isin(meeting_dates_next_month)]
-
-#     #select all remaining provisional dates (across current month and next months)
-#     df_updated_provisional=provisional[provisional['date'].isin(meeting_dates_next_month + remaining_dates)]
-    
-#     return(df_confirmed_current_month,df_remaining_current_month,df_remaining_next_month,df_updated_provisional)
 
 #separate the provisional schedule based on past and future dates
 def filter_provisional_schedule(provisional):
     today=pd.Timestamp.today().normalize()
     confirmed=provisional[provisional['date']<today]
     upcoming=provisional[provisional['date']>=today]
+    # for testing:
+    # confirmed=provisional.copy()
     return(confirmed, upcoming)
 
 #run daily to save confirmed provisionals to history file
